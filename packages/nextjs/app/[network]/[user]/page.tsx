@@ -7,6 +7,7 @@ import { mainnet } from "viem/chains";
 import { normalize } from "viem/ens";
 import { useAccount } from "wagmi";
 import { Profile } from "~~/components/onchain-portfolio/Profile";
+import { AddressRaw } from "~~/components/scaffold-eth/AddressRaw";
 // import { Address } from "~~/components/scaffold-eth";
 import { useScaffoldContract, useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import profilePicturePlaceholder from "~~/public/profile-icon-placeholder.gif";
@@ -15,7 +16,7 @@ import { getAlchemyHttpUrl } from "~~/utils/scaffold-eth";
 export default function CollectionPage({ params }: { params: { network: string; user: string } }) {
   const [selectedAddress, setSelectedAddress] = useState<string>();
 
-  const [isValidEns, setIsValidEns] = useState<boolean>();
+  // const [isValidEns, setIsValidEns] = useState<boolean>();
 
   useEffect(() => {
     async function get() {
@@ -34,7 +35,7 @@ export default function CollectionPage({ params }: { params: { network: string; 
         });
 
         selectedAddress = addr as string;
-        setIsValidEns(true);
+        // setIsValidEns(true);
       }
 
       setSelectedAddress(selectedAddress);
@@ -99,10 +100,6 @@ export default function CollectionPage({ params }: { params: { network: string; 
     );
   }
 
-  const displayAddress = selectedAddress?.slice(0, 6) + "..." + selectedAddress?.slice(-4);
-
-  const displayName = isValidEns ? params.user : displayAddress;
-
   console.log("render check");
   return (
     <div className="flex flex-col items-center space-y-40 md:space-y-10">
@@ -115,13 +112,15 @@ export default function CollectionPage({ params }: { params: { network: string; 
             image={profilePicturePlaceholder.src}
           />
         ) : (
-          <div className="flex flex-wrap space-x-1 text-center items-center justify-center">
-            {/* <Address address={params.address} showIcon={false} showCopy={false} /> */}
-            {hasBoughtBefore ? (
-              <p>{`${displayName}'s Onchain Portfolio Subscription is no longer active on the ${formattedNetwork} blockchain!`}</p>
-            ) : (
-              <p>{`${displayName} does not have an active Onchain Portfolio Subscription on the ${formattedNetwork} blockchain!`}</p>
-            )}
+          <div className="flex w-full items-center justify-center text-center">
+            <span className="mx-10 md:mx-[550px]">
+              <AddressRaw address={selectedAddress} />
+              {hasBoughtBefore ? (
+                <span>{`'s Onchain Portfolio Subscription is no longer active on the ${formattedNetwork} blockchain!`}</span>
+              ) : (
+                <span className="ml-1">{`does not have an active Onchain Portfolio Subscription on the ${formattedNetwork} blockchain!`}</span>
+              )}
+            </span>
           </div>
         )}
       </div>

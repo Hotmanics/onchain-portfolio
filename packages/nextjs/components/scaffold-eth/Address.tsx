@@ -1,16 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { AddressRaw } from "./AddressRaw";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { Address as AddressType, getAddress, isAddress } from "viem";
-import { hardhat } from "viem/chains";
 import { normalize } from "viem/ens";
 import { useEnsAvatar, useEnsName } from "wagmi";
 import { CheckCircleIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
 import { BlockieAvatar } from "~~/components/scaffold-eth";
-import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
-import { getBlockExplorerAddressLink } from "~~/utils/scaffold-eth";
 
 type AddressProps = {
   address?: AddressType;
@@ -44,12 +41,9 @@ export const Address = ({
   showAddress = true,
   showCopy = true,
 }: AddressProps) => {
-  const [ens, setEns] = useState<string | null>();
   const [ensAvatar, setEnsAvatar] = useState<string | null>();
   const [addressCopied, setAddressCopied] = useState(false);
   const checkSumAddress = address ? getAddress(address) : undefined;
-
-  const { targetNetwork } = useTargetNetwork();
 
   const { data: fetchedEns } = useEnsName({
     address: checkSumAddress,
@@ -66,11 +60,6 @@ export const Address = ({
       gcTime: 30_000,
     },
   });
-
-  // We need to apply this pattern to avoid Hydration errors.
-  useEffect(() => {
-    setEns(fetchedEns);
-  }, [fetchedEns]);
 
   useEffect(() => {
     setEnsAvatar(fetchedEnsAvatar);
@@ -92,15 +81,6 @@ export const Address = ({
     return <span className="text-error">Wrong address</span>;
   }
 
-  const blockExplorerAddressLink = getBlockExplorerAddressLink(targetNetwork, checkSumAddress);
-  let displayAddress = checkSumAddress?.slice(0, 6) + "..." + checkSumAddress?.slice(-4);
-
-  if (ens) {
-    displayAddress = ens;
-  } else if (format === "long") {
-    displayAddress = checkSumAddress;
-  }
-
   return (
     <div className="flex items-center flex-shrink-0 space-x-1">
       {showIcon ? (
@@ -114,27 +94,7 @@ export const Address = ({
       ) : (
         <></>
       )}
-
-      {showAddress ? (
-        disableAddressLink ? (
-          <span className={`text-${size} font-normal`}>{displayAddress}</span>
-        ) : targetNetwork.id === hardhat.id ? (
-          <span className={`text-${size} font-normal hover:underline`}>
-            <Link href={blockExplorerAddressLink}>{displayAddress}</Link>
-          </span>
-        ) : (
-          <a
-            className={`text-${size} font-normal hover:underline`}
-            target="_blank"
-            href={blockExplorerAddressLink}
-            rel="noopener noreferrer"
-          >
-            {displayAddress}
-          </a>
-        )
-      ) : (
-        <></>
-      )}
+      {showAddress ? <AddressRaw address={address} format={format} disableAddressLink={disableAddressLink} /> : <></>}
       {showCopy ? (
         addressCopied ? (
           <CheckCircleIcon
