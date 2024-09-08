@@ -22,7 +22,7 @@ contract DeployScript is ScaffoldETHDeploy {
             address(0),
             .1 ether,
             address(0),
-            10 seconds
+            30 days
         );
 
         console.logString(

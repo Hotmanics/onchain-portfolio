@@ -11,6 +11,7 @@ import { AddressRaw } from "~~/components/scaffold-eth/AddressRaw";
 // import { Address } from "~~/components/scaffold-eth";
 import { useScaffoldContract, useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import profilePicturePlaceholder from "~~/public/profile-icon-placeholder.gif";
+import insertSpaces from "~~/utils/onchain-portfolio/textManipulation";
 import { getAlchemyHttpUrl } from "~~/utils/scaffold-eth";
 
 export default function CollectionPage({ params }: { params: { network: string; user: string } }) {
@@ -76,12 +77,6 @@ export default function CollectionPage({ params }: { params: { network: string; 
   const { writeContractAsync: writePaymentVerifierAsync } = useScaffoldWriteContract("PaymentVerifier");
 
   const hasBoughtBefore = lastPaymentDate === BigInt(0) ? false : true;
-
-  function insertSpaces(string: string) {
-    string = string.replace(/([a-z])([A-Z])/g, "$1 $2");
-    string = string.replace(/([A-Z])([A-Z][a-z])/g, "$1 $2");
-    return string;
-  }
 
   if (isLoadingPaymentVerifier) {
     return (
