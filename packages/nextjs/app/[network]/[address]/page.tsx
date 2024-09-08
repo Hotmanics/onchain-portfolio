@@ -2,7 +2,8 @@
 
 import { formatEther, parseEther } from "viem";
 import { useAccount } from "wagmi";
-import { Address } from "~~/components/scaffold-eth";
+import { Profile } from "~~/components/onchain-portfolio/Profile";
+// import { Address } from "~~/components/scaffold-eth";
 import { useScaffoldContract, useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 export default function CollectionPage({ params }: { params: { network: string; address: string } }) {
@@ -51,6 +52,7 @@ export default function CollectionPage({ params }: { params: { network: string; 
     return (
       <div className="bg-secondary w-full p-10">
         <p className="text-center text-4xl">{"Spinning up the hamsters."}</p>
+        <p className="text-center text-4xl">{"Tricking the hamsters with more cheese."}</p>
       </div>
     );
   }
@@ -63,15 +65,21 @@ export default function CollectionPage({ params }: { params: { network: string; 
     );
   }
 
+  const displayAddress = params.address?.slice(0, 6) + "..." + params.address?.slice(-4);
+
   return (
     <div className="flex flex-col items-center space-y-40 md:space-y-10">
       <div className="bg-secondary w-full p-10">
         {isInGoodStanding ? (
-          <p className="text-center break-words">{`Welcome to ${params.address}'s page!`}</p>
+          <Profile address={params.address} />
         ) : (
           <div className="flex flex-wrap space-x-1 text-center items-center justify-center">
-            <Address address={params.address} showIcon={false} showCopy={false} />
-            <p>{` does not have an active onchain portfolio on the ${formattedNetwork} blockchain!`}</p>
+            {/* <Address address={params.address} showIcon={false} showCopy={false} /> */}
+            {hasBoughtBefore ? (
+              <p>{`${displayAddress}'s Onchain Portfolio Subscription is no longer active on the ${formattedNetwork} blockchain!`}</p>
+            ) : (
+              <p>{`${displayAddress} does not have an active Onchain Portfolio Subscription on the ${formattedNetwork} blockchain!`}</p>
+            )}
           </div>
         )}
       </div>
