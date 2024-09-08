@@ -34,6 +34,12 @@ export default function CollectionPage({ params }: { params: { network: string; 
 
   const hasBoughtBefore = lastPaymentDate === BigInt(0) ? false : true;
 
+  function insertSpaces(string: string) {
+    string = string.replace(/([a-z])([A-Z])/g, "$1 $2");
+    string = string.replace(/([A-Z])([A-Z][a-z])/g, "$1 $2");
+    return string;
+  }
+
   return (
     <div className="flex flex-col items-center space-y-40 md:space-y-10">
       <div className="bg-secondary w-full p-10">
@@ -42,7 +48,10 @@ export default function CollectionPage({ params }: { params: { network: string; 
         ) : (
           <div className="flex flex-wrap space-x-1 text-center items-center justify-center">
             <Address address={params.address} showIcon={false} showCopy={false} />
-            <p>{" does not have an active onchain portfolio on this blockchain!"}</p>
+            <p>{` does not have an active onchain portfolio on the ${insertSpaces(params.network).replace(
+              /(^\w{1})|(\s+\w{1})/g,
+              letter => letter.toUpperCase(),
+            )} blockchain!`}</p>
           </div>
         )}
       </div>
