@@ -1,30 +1,31 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createPublicClient, formatEther, http, parseEther } from "viem";
+import { createPublicClient, http } from "viem";
 import { isAddress } from "viem";
 import { mainnet } from "viem/chains";
 import { normalize } from "viem/ens";
 import { useAccount } from "wagmi";
+import { ActivateServiceSection } from "~~/components/onchain-portfolio/ActivateServiceSection";
 import { Profile } from "~~/components/onchain-portfolio/Profile";
 import { AddressRaw } from "~~/components/scaffold-eth/AddressRaw";
 // import { Address } from "~~/components/scaffold-eth";
-import { useScaffoldContract, useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useScaffoldContract, useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import profilePicturePlaceholder from "~~/public/profile-icon-placeholder.gif";
 import insertSpaces from "~~/utils/onchain-portfolio/textManipulation";
 import { getAlchemyHttpUrl } from "~~/utils/scaffold-eth";
 
-export default function CollectionPage({ params }: { params: { network: string; user: string } }) {
-  const [selectedAddress, setSelectedAddress] = useState<string>();
+export default function UserPage({ params }: { params: { network: string; user: string } }) {
+  const [profileAddress, setProfileAddress] = useState<string>();
 
   // const [isValidEns, setIsValidEns] = useState<boolean>();
 
   useEffect(() => {
     async function get() {
-      let selectedAddress;
+      let userAddress;
 
       if (isAddress(params.user)) {
-        selectedAddress = params.user;
+        userAddress = params.user;
       } else {
         const publicClient = createPublicClient({
           chain: mainnet,
@@ -35,11 +36,11 @@ export default function CollectionPage({ params }: { params: { network: string; 
           name: normalize(params.user),
         });
 
-        selectedAddress = addr as string;
+        userAddress = addr as string;
         // setIsValidEns(true);
       }
 
-      setSelectedAddress(selectedAddress);
+      setProfileAddress(userAddress);
     }
     get();
   }, [params.user]);
@@ -55,12 +56,7 @@ export default function CollectionPage({ params }: { params: { network: string; 
   const { data: isInGoodStanding } = useScaffoldReadContract({
     contractName: "PaymentVerifier",
     functionName: "getIsInGoodStanding",
-    args: [selectedAddress],
-  });
-
-  const { data: paymentFee } = useScaffoldReadContract({
-    contractName: "PaymentVerifier",
-    functionName: "getPaymentFee",
+    args: [profileAddress],
   });
 
   //   const { data: paymentCadence } = useScaffoldReadContract({
@@ -71,10 +67,8 @@ export default function CollectionPage({ params }: { params: { network: string; 
   const { data: lastPaymentDate } = useScaffoldReadContract({
     contractName: "PaymentVerifier",
     functionName: "getLastPaymentDate",
-    args: [selectedAddress],
+    args: [profileAddress],
   });
-
-  const { writeContractAsync: writePaymentVerifierAsync } = useScaffoldWriteContract("PaymentVerifier");
 
   const hasBoughtBefore = lastPaymentDate === BigInt(0) ? false : true;
 
@@ -101,7 +95,7 @@ export default function CollectionPage({ params }: { params: { network: string; 
       <div className="bg-secondary w-full p-10">
         {isInGoodStanding ? (
           <Profile
-            address={selectedAddress || ""}
+            address={profileAddress || ""}
             name="Jacob Homanics"
             description="Onchain Developer focused on NFTs, DAOs, public goods, and open sourced tech."
             image={profilePicturePlaceholder.src}
@@ -109,7 +103,7 @@ export default function CollectionPage({ params }: { params: { network: string; 
         ) : (
           <div className="flex w-full items-center justify-center text-center">
             <span className="mx-10 md:mx-[550px]">
-              <AddressRaw address={selectedAddress} />
+              <AddressRaw address={profileAddress} />
               {hasBoughtBefore ? (
                 <span>{`'s Onchain Portfolio Subscription is no longer active on the ${formattedNetwork} blockchain!`}</span>
               ) : (
@@ -120,28 +114,12 @@ export default function CollectionPage({ params }: { params: { network: string; 
         )}
       </div>
 
-      <div className="flex flex-col items-center">
-        {!isInGoodStanding && account?.address ? (
-          <>
-            {account.address !== selectedAddress ? <p>{"Feeling generous? Pay for their service fee."}</p> : <></>}
-            <p>{`Cost: ${formatEther(paymentFee || BigInt(0))} ether`}</p>
-            <button
-              onClick={async () => {
-                await writePaymentVerifierAsync({
-                  functionName: "payFee",
-                  args: [selectedAddress],
-                  value: parseEther("0.1"),
-                });
-              }}
-              className="btn btn-primary w-[200px]"
-            >
-              {hasBoughtBefore ? "Renew" : "Activate"}
-            </button>
-          </>
-        ) : (
-          <></>
-        )}
-      </div>
+      <ActivateServiceSection
+        connectedAddress={account?.address || ""}
+        userAddress={profileAddress || ""}
+        hasBoughtBefore={hasBoughtBefore}
+        isInGoodStanding={isInGoodStanding || false}
+      />
     </div>
   );
 }
