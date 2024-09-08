@@ -5,10 +5,9 @@ import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaf
 
 type Props = {
   profileAddress: string;
-  hasBoughtBefore: boolean;
 };
 
-export const ActivateServiceButton = ({ profileAddress, hasBoughtBefore }: Props) => {
+export const ActivateServiceButton = ({ profileAddress }: Props) => {
   const { data: paymentFee } = useScaffoldReadContract({
     contractName: "PaymentVerifier",
     functionName: "getPaymentFee",
@@ -17,8 +16,8 @@ export const ActivateServiceButton = ({ profileAddress, hasBoughtBefore }: Props
   const { writeContractAsync: writePaymentVerifierAsync } = useScaffoldWriteContract("PaymentVerifier");
 
   return (
-    <div className="flex flex-col items-center">
-      <p>{`Cost: ${formatEther(paymentFee || BigInt(0))} ether`}</p>
+    <div className="flex flex-col items-center m-4">
+      <p className="m-0">{`Cost: ${formatEther(paymentFee || BigInt(0))} ether`}</p>
       <button
         onClick={async () => {
           await writePaymentVerifierAsync({
@@ -27,9 +26,9 @@ export const ActivateServiceButton = ({ profileAddress, hasBoughtBefore }: Props
             value: paymentFee,
           });
         }}
-        className="btn btn-primary w-[200px]"
+        className="btn btn-base-300 btn-lg"
       >
-        {hasBoughtBefore ? "Renew" : "Activate"}
+        Activate
       </button>
     </div>
   );

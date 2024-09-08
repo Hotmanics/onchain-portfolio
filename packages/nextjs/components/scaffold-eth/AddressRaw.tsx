@@ -12,7 +12,7 @@ type AddressProps = {
   address?: AddressType;
   disableAddressLink?: boolean;
   format?: "short" | "long";
-  size?: "xs" | "sm" | "base" | "lg" | "xl" | "2xl" | "3xl";
+  size?: "xs" | "sm" | "base" | "lg" | "xl" | "2xl" | "3xl" | "4xl";
 };
 /**
  * Displays an address (or ENS) with a Blockie image and option to copy address.
