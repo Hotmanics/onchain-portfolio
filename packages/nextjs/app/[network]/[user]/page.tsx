@@ -40,7 +40,7 @@ export default function CollectionPage({ params }: { params: { network: string; 
       setSelectedAddress(selectedAddress);
     }
     get();
-  }, []);
+  }, [params.user]);
 
   const account = useAccount();
 
@@ -103,6 +103,7 @@ export default function CollectionPage({ params }: { params: { network: string; 
 
   const displayName = isValidEns ? params.user : displayAddress;
 
+  console.log("render check");
   return (
     <div className="flex flex-col items-center space-y-40 md:space-y-10">
       <div className="bg-secondary w-full p-10">
