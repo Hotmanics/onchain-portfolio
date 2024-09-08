@@ -3,10 +3,17 @@
 import { formatEther, parseEther } from "viem";
 import { useAccount } from "wagmi";
 import { Address } from "~~/components/scaffold-eth";
-import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useScaffoldContract, useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 export default function CollectionPage({ params }: { params: { network: string; address: string } }) {
   const account = useAccount();
+
+  const formattedNetwork = insertSpaces(params.network).replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
+
+  const { data: paymentVerifier, isLoading: isLoadingPaymentVerifier } = useScaffoldContract({
+    contractName: "PaymentVerifier",
+  });
+  console.log(paymentVerifier?.address);
 
   const { data: isInGoodStanding } = useScaffoldReadContract({
     contractName: "PaymentVerifier",
@@ -40,6 +47,22 @@ export default function CollectionPage({ params }: { params: { network: string; 
     return string;
   }
 
+  if (isLoadingPaymentVerifier) {
+    return (
+      <div className="bg-secondary w-full p-10">
+        <p className="text-center text-4xl">{"Spinning up the hamsters."}</p>
+      </div>
+    );
+  }
+
+  if (paymentVerifier?.address === undefined) {
+    return (
+      <div className="bg-secondary w-full p-10">
+        <p className="text-center text-4xl">{formattedNetwork + " is not a supported network!"}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col items-center space-y-40 md:space-y-10">
       <div className="bg-secondary w-full p-10">
@@ -48,10 +71,7 @@ export default function CollectionPage({ params }: { params: { network: string; 
         ) : (
           <div className="flex flex-wrap space-x-1 text-center items-center justify-center">
             <Address address={params.address} showIcon={false} showCopy={false} />
-            <p>{` does not have an active onchain portfolio on the ${insertSpaces(params.network).replace(
-              /(^\w{1})|(\s+\w{1})/g,
-              letter => letter.toUpperCase(),
-            )} blockchain!`}</p>
+            <p>{` does not have an active onchain portfolio on the ${formattedNetwork} blockchain!`}</p>
           </div>
         )}
       </div>
