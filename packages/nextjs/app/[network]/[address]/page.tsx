@@ -1,0 +1,74 @@
+"use client";
+
+import { formatEther, parseEther } from "viem";
+import { useAccount } from "wagmi";
+import { Address } from "~~/components/scaffold-eth";
+import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+
+export default function CollectionPage({ params }: { params: { network: string; address: string } }) {
+  const account = useAccount();
+
+  const { data: isInGoodStanding } = useScaffoldReadContract({
+    contractName: "PaymentVerifier",
+    functionName: "getIsInGoodStanding",
+    args: [params.address],
+  });
+
+  const { data: paymentFee } = useScaffoldReadContract({
+    contractName: "PaymentVerifier",
+    functionName: "getPaymentFee",
+  });
+
+  //   const { data: paymentCadence } = useScaffoldReadContract({
+  //     contractName: "PaymentVerifier",
+  //     functionName: "getPaymentCadence",
+  //   });
+
+  const { data: lastPaymentDate } = useScaffoldReadContract({
+    contractName: "PaymentVerifier",
+    functionName: "getLastPaymentDate",
+    args: [params.address],
+  });
+
+  const { writeContractAsync: writePaymentVerifierAsync } = useScaffoldWriteContract("PaymentVerifier");
+
+  const hasBoughtBefore = lastPaymentDate === BigInt(0) ? false : true;
+
+  return (
+    <div className="flex flex-col items-center space-y-40 md:space-y-10">
+      <div className="bg-secondary w-full p-10">
+        {isInGoodStanding ? (
+          <p className="text-center break-words">{`Welcome to ${params.address}'s page!`}</p>
+        ) : (
+          <div className="flex flex-wrap space-x-1 text-center items-center justify-center">
+            <Address address={params.address} showIcon={false} showCopy={false} />
+            <p>{" does not have an active onchain portfolio on this blockchain!"}</p>
+          </div>
+        )}
+      </div>
+
+      <div className="flex flex-col items-center">
+        {!isInGoodStanding && account?.address ? (
+          <>
+            {account.address !== params.address ? <p>{"Feeling generous? Pay for their service fee."}</p> : <></>}
+            <p>{`Cost: ${formatEther(paymentFee || BigInt(0))} ether`}</p>
+            <button
+              onClick={async () => {
+                await writePaymentVerifierAsync({
+                  functionName: "payFee",
+                  args: [params.address],
+                  value: parseEther("0.1"),
+                });
+              }}
+              className="btn btn-primary w-[200px]"
+            >
+              {hasBoughtBefore ? "Renew" : "Activate"}
+            </button>
+          </>
+        ) : (
+          <></>
+        )}
+      </div>
+    </div>
+  );
+}

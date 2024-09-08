@@ -17,6 +17,9 @@ type AddressProps = {
   disableAddressLink?: boolean;
   format?: "short" | "long";
   size?: "xs" | "sm" | "base" | "lg" | "xl" | "2xl" | "3xl";
+  showIcon?: boolean;
+  showAddress?: boolean;
+  showCopy?: boolean;
 };
 
 const blockieSizeMap = {
@@ -32,7 +35,15 @@ const blockieSizeMap = {
 /**
  * Displays an address (or ENS) with a Blockie image and option to copy address.
  */
-export const Address = ({ address, disableAddressLink, format, size = "base" }: AddressProps) => {
+export const Address = ({
+  address,
+  disableAddressLink,
+  format,
+  size = "base",
+  showIcon = true,
+  showAddress = true,
+  showCopy = true,
+}: AddressProps) => {
   const [ens, setEns] = useState<string | null>();
   const [ensAvatar, setEnsAvatar] = useState<string | null>();
   const [addressCopied, setAddressCopied] = useState(false);
@@ -91,50 +102,63 @@ export const Address = ({ address, disableAddressLink, format, size = "base" }: 
   }
 
   return (
-    <div className="flex items-center flex-shrink-0">
-      <div className="flex-shrink-0">
-        <BlockieAvatar
-          address={checkSumAddress}
-          ensImage={ensAvatar}
-          size={(blockieSizeMap[size] * 24) / blockieSizeMap["base"]}
-        />
-      </div>
-      {disableAddressLink ? (
-        <span className={`ml-1.5 text-${size} font-normal`}>{displayAddress}</span>
-      ) : targetNetwork.id === hardhat.id ? (
-        <span className={`ml-1.5 text-${size} font-normal`}>
-          <Link href={blockExplorerAddressLink}>{displayAddress}</Link>
-        </span>
+    <div className="flex items-center flex-shrink-0 space-x-1">
+      {showIcon ? (
+        <div className="flex-shrink-0">
+          <BlockieAvatar
+            address={checkSumAddress}
+            ensImage={ensAvatar}
+            size={(blockieSizeMap[size] * 24) / blockieSizeMap["base"]}
+          />
+        </div>
       ) : (
-        <a
-          className={`ml-1.5 text-${size} font-normal`}
-          target="_blank"
-          href={blockExplorerAddressLink}
-          rel="noopener noreferrer"
-        >
-          {displayAddress}
-        </a>
+        <></>
       )}
-      {addressCopied ? (
-        <CheckCircleIcon
-          className="ml-1.5 text-xl font-normal text-sky-600 h-5 w-5 cursor-pointer flex-shrink-0"
-          aria-hidden="true"
-        />
+
+      {showAddress ? (
+        disableAddressLink ? (
+          <span className={`text-${size} font-normal`}>{displayAddress}</span>
+        ) : targetNetwork.id === hardhat.id ? (
+          <span className={`text-${size} font-normal hover:underline`}>
+            <Link href={blockExplorerAddressLink}>{displayAddress}</Link>
+          </span>
+        ) : (
+          <a
+            className={`text-${size} font-normal hover:underline`}
+            target="_blank"
+            href={blockExplorerAddressLink}
+            rel="noopener noreferrer"
+          >
+            {displayAddress}
+          </a>
+        )
       ) : (
-        <CopyToClipboard
-          text={checkSumAddress}
-          onCopy={() => {
-            setAddressCopied(true);
-            setTimeout(() => {
-              setAddressCopied(false);
-            }, 800);
-          }}
-        >
-          <DocumentDuplicateIcon
-            className="ml-1.5 text-xl font-normal text-sky-600 h-5 w-5 cursor-pointer flex-shrink-0"
+        <></>
+      )}
+      {showCopy ? (
+        addressCopied ? (
+          <CheckCircleIcon
+            className="text-xl font-normal text-sky-600 h-5 w-5 cursor-pointer flex-shrink-0"
             aria-hidden="true"
           />
-        </CopyToClipboard>
+        ) : (
+          <CopyToClipboard
+            text={checkSumAddress}
+            onCopy={() => {
+              setAddressCopied(true);
+              setTimeout(() => {
+                setAddressCopied(false);
+              }, 800);
+            }}
+          >
+            <DocumentDuplicateIcon
+              className="text-xl font-normal text-sky-600 h-5 w-5 cursor-pointer flex-shrink-0"
+              aria-hidden="true"
+            />
+          </CopyToClipboard>
+        )
+      ) : (
+        <></>
       )}
     </div>
   );

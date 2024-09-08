@@ -11,7 +11,7 @@ contract PaymentVerifier {
     address s_owner;
     address s_withdrawRecipient;
 
-    uint256 s_paymentAmount;
+    uint256 s_paymentFee;
     mapping(address => bool) s_hasPaid;
     mapping(address => uint256) s_lastPaymentDate;
 
@@ -31,13 +31,13 @@ contract PaymentVerifier {
         uint256 paymentCadence
     ) {
         s_owner = owner;
-        s_paymentAmount = paymentAmount;
+        s_paymentFee = paymentAmount;
         s_withdrawRecipient = withdrawRecipient;
         s_paymentCadence = paymentCadence;
     }
 
     function setPaymentAmount(uint256 amount) external onlyOwner {
-        s_paymentAmount = amount;
+        s_paymentFee = amount;
     }
 
     function setPaymentCadence(uint256 cadence) external onlyOwner {
@@ -45,7 +45,7 @@ contract PaymentVerifier {
     }
 
     function payFee(address addr) external payable {
-        if (msg.value < s_paymentAmount) revert NotEnoughPayment();
+        if (msg.value < s_paymentFee) revert NotEnoughPayment();
 
         emit FeePaid(addr, msg.value);
         s_hasPaid[addr] = true;
@@ -59,10 +59,22 @@ contract PaymentVerifier {
         require(sent, "Failed to send Ether");
     }
 
-    function getIsInGoodStanding(
-        address addr
-    ) external view returns (bool isInGoodStanding) {
-        isInGoodStanding =
-            s_lastPaymentDate[addr] + s_paymentCadence < block.timestamp;
+    function getIsInGoodStanding(address addr) external view returns (bool) {
+        return
+            s_lastPaymentDate[addr] == 0
+                ? block.timestamp + s_paymentCadence < block.timestamp
+                : s_lastPaymentDate[addr] + s_paymentCadence > block.timestamp;
+    }
+
+    function getLastPaymentDate(address addr) external view returns (uint256) {
+        return s_lastPaymentDate[addr];
+    }
+
+    function getPaymentCadence() external view returns (uint256) {
+        return s_paymentCadence;
+    }
+
+    function getPaymentFee() external view returns (uint256) {
+        return s_paymentFee;
     }
 }
