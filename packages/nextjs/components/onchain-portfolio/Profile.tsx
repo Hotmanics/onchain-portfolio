@@ -1,21 +1,18 @@
 "use client";
 
 import { PfpCard } from "./PfpCard";
-import profilePicturePlaceholder from "~~/public/profile-icon-placeholder.gif";
 
 type Props = {
   address: string;
+  name?: string;
+  description?: string;
+  image?: string;
 };
 
-export const Profile = ({ address }: Props) => {
+export const Profile = ({ address, name, description, image }: Props) => {
   return (
     <>
-      <PfpCard
-        address={address}
-        name="Jacob Homanics"
-        description="Onchain Developer focused on NFTs, DAOs, public goods, and open sourced tech."
-        image={profilePicturePlaceholder.src}
-      />
+      <PfpCard address={address} name={name} description={description} image={image} />
     </>
   );
 };
