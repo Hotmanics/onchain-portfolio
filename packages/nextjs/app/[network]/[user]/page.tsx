@@ -6,9 +6,8 @@ import { isAddress } from "viem";
 import { mainnet } from "viem/chains";
 import { normalize } from "viem/ens";
 import { useAccount } from "wagmi";
-import { ActivateServiceSection } from "~~/components/onchain-portfolio/ActivateServiceSection";
+import { InactiveSubscriptionCard } from "~~/components/onchain-portfolio/InactiveSubscriptionCard";
 import { Profile } from "~~/components/onchain-portfolio/Profile";
-import { Address } from "~~/components/scaffold-eth";
 // import { Address } from "~~/components/scaffold-eth";
 import { useScaffoldContract, useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import profilePicturePlaceholder from "~~/public/profile-icon-placeholder.gif";
@@ -115,49 +114,12 @@ export default function UserPage({ params }: { params: { network: string; user: 
           image={dummyUser.image}
         />
       ) : (
-        <div className="flex flex-col bg-base-300 text-center rounded-xl items-center p-4 space-y-10">
-          <Address address={profileAddress} size="3xl" />
-          <div>
-            <p className="text-3xl m-0">
-              Network: <span className="text-success">{formattedNetwork}</span>
-            </p>
-            <p className="text-3xl m-0">
-              Subscription Status: <span className="text-error">Inactive</span>
-            </p>
-          </div>
-          <ActivateServiceSection connectedAddress={account?.address || ""} profileAddress={profileAddress || ""} />
-        </div>
+        <InactiveSubscriptionCard
+          connectedAddress={account?.address || ""}
+          profileAddress={profileAddress}
+          network={formattedNetwork}
+        />
       )}
     </div>
-    // <div className="flex flex-col items-center space-y-40 md:space-y-10">
-    //   <div className="bg-secondary w-full p-10">
-    //     {isProfileSubscriptionActive ? (
-    //       <Profile
-    //         address={profileAddress}
-    //         name={dummyUser.name}
-    //         description={dummyUser.description}
-    //         image={dummyUser.image}
-    //       />
-    //     ) : (
-    //       <div className="text-center mx-10 md:mx-[550px]">
-    //         <ServiceNoticeSection
-    //           network={formattedNetwork}
-    //           address={profileAddress}
-    //           hasBoughtBefore={hasBoughtBefore}
-    //         />
-    //       </div>
-    //     )}
-    //   </div>
-
-    //   {!isProfileSubscriptionActive ? (
-    //     <ActivateServiceSection
-    //       connectedAddress={account?.address || ""}
-    //       profileAddress={profileAddress || ""}
-    //       hasBoughtBefore={hasBoughtBefore}
-    //     />
-    //   ) : (
-    //     <></>
-    //   )}
-    // </div>
   );
 }
