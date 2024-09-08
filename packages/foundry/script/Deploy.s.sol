@@ -2,6 +2,7 @@
 pragma solidity ^0.8.19;
 
 import "../contracts/YourContract.sol";
+import "../contracts/PaymentVerifier.sol";
 import "./DeployHelpers.s.sol";
 import {DeployPaymentVerifierScript} from "./DeployPaymentVerifier.s.sol";
 
@@ -22,6 +23,19 @@ contract DeployScript is ScaffoldETHDeploy {
 
         vm.stopBroadcast();
 
+        PaymentVerifier verifier = new PaymentVerifier(
+            address(0),
+            .1 ether,
+            address(0),
+            30 days
+        );
+
+        console.logString(
+            string.concat(
+                "Verifier deployed at: ",
+                vm.toString(address(verifier))
+            )
+        );
         /**
          * This function generates the file containing the contracts Abi definitions.
          * These definitions are used to derive the types needed in the custom scaffold-eth hooks, for example.
