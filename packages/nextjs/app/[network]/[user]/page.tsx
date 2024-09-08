@@ -53,9 +53,9 @@ export default function UserPage({ params }: { params: { network: string; user: 
     contractName: "PaymentVerifier",
   });
 
-  const { data: isInGoodStanding } = useScaffoldReadContract({
+  const { data: isProfileSubscriptionActive } = useScaffoldReadContract({
     contractName: "PaymentVerifier",
-    functionName: "getIsInGoodStanding",
+    functionName: "getIsSubscriptionActive",
     args: [profileAddress],
   });
 
@@ -93,7 +93,7 @@ export default function UserPage({ params }: { params: { network: string; user: 
   return (
     <div className="flex flex-col items-center space-y-40 md:space-y-10">
       <div className="bg-secondary w-full p-10">
-        {isInGoodStanding ? (
+        {isProfileSubscriptionActive ? (
           <Profile
             address={profileAddress || ""}
             name="Jacob Homanics"
@@ -114,12 +114,15 @@ export default function UserPage({ params }: { params: { network: string; user: 
         )}
       </div>
 
-      <ActivateServiceSection
-        connectedAddress={account?.address || ""}
-        userAddress={profileAddress || ""}
-        hasBoughtBefore={hasBoughtBefore}
-        isInGoodStanding={isInGoodStanding || false}
-      />
+      {!isProfileSubscriptionActive ? (
+        <ActivateServiceSection
+          connectedAddress={account?.address || ""}
+          profileAddress={profileAddress || ""}
+          hasBoughtBefore={hasBoughtBefore}
+        />
+      ) : (
+        <></>
+      )}
     </div>
   );
 }

@@ -59,7 +59,9 @@ contract PaymentVerifier {
         require(sent, "Failed to send Ether");
     }
 
-    function getIsInGoodStanding(address addr) external view returns (bool) {
+    function getIsSubscriptionActive(
+        address addr
+    ) external view returns (bool) {
         return
             s_lastPaymentDate[addr] == 0
                 ? block.timestamp + s_paymentCadence < block.timestamp

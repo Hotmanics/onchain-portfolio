@@ -5,12 +5,11 @@ import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaf
 
 type Props = {
   connectedAddress: string;
-  userAddress: string;
-  isInGoodStanding: boolean;
+  profileAddress: string;
   hasBoughtBefore: boolean;
 };
 
-export const ActivateServiceSection = ({ connectedAddress, userAddress, isInGoodStanding, hasBoughtBefore }: Props) => {
+export const ActivateServiceSection = ({ connectedAddress, profileAddress, hasBoughtBefore }: Props) => {
   const { data: paymentFee } = useScaffoldReadContract({
     contractName: "PaymentVerifier",
     functionName: "getPaymentFee",
@@ -20,26 +19,20 @@ export const ActivateServiceSection = ({ connectedAddress, userAddress, isInGood
 
   return (
     <div className="flex flex-col items-center">
-      {!isInGoodStanding && connectedAddress ? (
-        <>
-          {connectedAddress !== userAddress ? <p>{"Feeling generous? Pay for their service fee."}</p> : <></>}
-          <p>{`Cost: ${formatEther(paymentFee || BigInt(0))} ether`}</p>
-          <button
-            onClick={async () => {
-              await writePaymentVerifierAsync({
-                functionName: "payFee",
-                args: [userAddress],
-                value: paymentFee,
-              });
-            }}
-            className="btn btn-primary w-[200px]"
-          >
-            {hasBoughtBefore ? "Renew" : "Activate"}
-          </button>
-        </>
-      ) : (
-        <></>
-      )}
+      {connectedAddress !== profileAddress ? <p>{"Feeling generous? Pay for their service fee."}</p> : <></>}
+      <p>{`Cost: ${formatEther(paymentFee || BigInt(0))} ether`}</p>
+      <button
+        onClick={async () => {
+          await writePaymentVerifierAsync({
+            functionName: "payFee",
+            args: [profileAddress],
+            value: paymentFee,
+          });
+        }}
+        className="btn btn-primary w-[200px]"
+      >
+        {hasBoughtBefore ? "Renew" : "Activate"}
+      </button>
     </div>
   );
 };
