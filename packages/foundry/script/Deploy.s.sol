@@ -1,10 +1,10 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
+import {PaymentVerifier} from "../contracts/PaymentVerifier.sol";
 import "../contracts/YourContract.sol";
 import "../contracts/PaymentVerifier.sol";
 import "./DeployHelpers.s.sol";
-import {DeployPaymentVerifierScript} from "./DeployPaymentVerifier.s.sol";
 
 contract DeployScript is ScaffoldETHDeploy {
     error InvalidPrivateKey(string);
@@ -17,11 +17,6 @@ contract DeployScript is ScaffoldETHDeploy {
             );
         }
         vm.startBroadcast(deployerPrivateKey);
-
-        DeployPaymentVerifierScript dpvs = new DeployPaymentVerifierScript();
-        dpvs.run();
-
-        vm.stopBroadcast();
 
         PaymentVerifier verifier = new PaymentVerifier(
             address(0),
@@ -36,6 +31,8 @@ contract DeployScript is ScaffoldETHDeploy {
                 vm.toString(address(verifier))
             )
         );
+        vm.stopBroadcast();
+
         /**
          * This function generates the file containing the contracts Abi definitions.
          * These definitions are used to derive the types needed in the custom scaffold-eth hooks, for example.
