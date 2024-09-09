@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTargetNetwork } from "./useTargetNetwork";
 import { MutateOptions } from "@tanstack/react-query";
 import { Abi, ExtractAbiFunctionNames } from "abitype";
+import { Chain } from "viem";
 import { Config, UseWriteContractParameters, useAccount, useWriteContract } from "wagmi";
 import { WriteContractErrorType, WriteContractReturnType } from "wagmi/actions";
 import { WriteContractVariables } from "wagmi/query";
@@ -22,6 +23,7 @@ import {
  */
 export const useScaffoldWriteContract = <TContractName extends ContractName>(
   contractName: TContractName,
+  targetChain?: Chain,
   writeContractParams?: UseWriteContractParameters,
 ) => {
   const { chain } = useAccount();
@@ -31,7 +33,9 @@ export const useScaffoldWriteContract = <TContractName extends ContractName>(
 
   const wagmiContractWrite = useWriteContract(writeContractParams);
 
-  const { data: deployedContractData } = useDeployedContractInfo(contractName, targetNetwork.id);
+  const selectedNetwork = targetChain ? targetChain?.id : targetNetwork.id;
+
+  const { data: deployedContractData } = useDeployedContractInfo(contractName, selectedNetwork);
 
   const sendContractWriteAsyncTx = async <
     TFunctionName extends ExtractAbiFunctionNames<ContractAbi<TContractName>, "nonpayable" | "payable">,
@@ -48,8 +52,9 @@ export const useScaffoldWriteContract = <TContractName extends ContractName>(
       notification.error("Please connect your wallet");
       return;
     }
-    if (chain?.id !== targetNetwork.id) {
-      notification.error("You are on the wrong network");
+
+    if (chain?.id !== selectedNetwork) {
+      notification.error("Your wallet is connected to the wrong network");
       return;
     }
 
@@ -97,8 +102,9 @@ export const useScaffoldWriteContract = <TContractName extends ContractName>(
       notification.error("Please connect your wallet");
       return;
     }
-    if (chain?.id !== targetNetwork.id) {
-      notification.error("You are on the wrong network");
+
+    if (chain?.id !== selectedNetwork) {
+      notification.error("Your wallet is connected to the wrong network");
       return;
     }
 

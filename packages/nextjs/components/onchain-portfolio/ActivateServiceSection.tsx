@@ -1,13 +1,15 @@
 "use client";
 
 import { ActivateServiceButton } from "./ActivateServiceButton";
+import { Chain } from "viem";
 
 type Props = {
   connectedAddress: string;
   profileAddress: string;
+  network?: Chain;
 };
 
-export const ActivateServiceSection = ({ connectedAddress, profileAddress }: Props) => {
+export const ActivateServiceSection = ({ connectedAddress, profileAddress, network }: Props) => {
   return (
     <div className="flex flex-col items-center">
       {connectedAddress !== profileAddress ? (
@@ -18,7 +20,7 @@ export const ActivateServiceSection = ({ connectedAddress, profileAddress }: Pro
       ) : (
         <></>
       )}
-      <ActivateServiceButton profileAddress={profileAddress} />
+      <ActivateServiceButton profileAddress={profileAddress} network={network} />
     </div>
   );
 };

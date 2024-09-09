@@ -1,19 +1,20 @@
 "use client";
 
-import { formatEther } from "viem";
+import { Chain, formatEther } from "viem";
 import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 type Props = {
   profileAddress: string;
+  network?: Chain;
 };
 
-export const ActivateServiceButton = ({ profileAddress }: Props) => {
+export const ActivateServiceButton = ({ profileAddress, network }: Props) => {
   const { data: paymentFee } = useScaffoldReadContract({
     contractName: "PaymentVerifier",
     functionName: "getPaymentFee",
   });
 
-  const { writeContractAsync: writePaymentVerifierAsync } = useScaffoldWriteContract("PaymentVerifier");
+  const { writeContractAsync: writePaymentVerifierAsync } = useScaffoldWriteContract("PaymentVerifier", network);
 
   return (
     <div className="flex flex-col items-center m-4">

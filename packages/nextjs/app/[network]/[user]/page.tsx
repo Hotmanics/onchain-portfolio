@@ -148,7 +148,7 @@ export default function UserPage({ params }: { params: { network: string; user: 
         <InactiveSubscriptionCard
           connectedAddress={account?.address || ""}
           profileAddress={profileAddress}
-          network={formattedNetwork}
+          network={pageChain}
         />
       </NoticeCard>
     );
