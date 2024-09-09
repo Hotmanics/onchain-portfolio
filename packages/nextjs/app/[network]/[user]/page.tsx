@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { createPublicClient, http, zeroAddress } from "viem";
 import { isAddress } from "viem";
 import { mainnet } from "viem/chains";
@@ -9,8 +8,10 @@ import * as chains from "viem/chains";
 import { normalize } from "viem/ens";
 import { useAccount } from "wagmi";
 import { InactiveSubscriptionCard } from "~~/components/onchain-portfolio/InactiveSubscriptionCard";
+import { NotSupportedNetworkCard } from "~~/components/onchain-portfolio/NotSupportedNetworkCard";
+import { NoticeCard } from "~~/components/onchain-portfolio/NoticeCard";
 import { Profile } from "~~/components/onchain-portfolio/Profile";
-import { useNetworkColor, useScaffoldContract, useScaffoldReadContract } from "~~/hooks/scaffold-eth";
+import { useScaffoldContract, useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import profilePicturePlaceholder from "~~/public/profile-icon-placeholder.gif";
 import insertSpaces from "~~/utils/onchain-portfolio/textManipulation";
 import { NETWORKS_EXTRA_DATA, getAlchemyHttpUrl } from "~~/utils/scaffold-eth";
@@ -92,8 +93,6 @@ export default function UserPage({ params }: { params: { network: string; user: 
     chainId: pageChain?.id,
   });
 
-  console.log(account?.chain);
-
   const chainWithAttr = useMemo(
     () => ({
       ...pageChain,
@@ -101,8 +100,6 @@ export default function UserPage({ params }: { params: { network: string; user: 
     }),
     [pageChain],
   );
-
-  const networkColor = useNetworkColor(chainWithAttr);
 
   if (isLoadingPaymentVerifier) {
     return (
@@ -116,27 +113,10 @@ export default function UserPage({ params }: { params: { network: string; user: 
 
   if (paymentVerifier?.address === undefined) {
     return (
-      <div
-        className={`bg-secondary w-full flex flex-col flex-grow items-center ${
-          isProfileSubscriptionActive ? "justify-start" : "justify-center"
-        }`}
-      >
-        <div className="flex flex-col bg-base-300 text-center rounded-xl items-center p-4 space-y-10">
-          <p className="text-center text-4xl">
-            <span style={{ color: networkColor }}>{formattedNetwork}</span> is not a supported network!
-          </p>
-
-          <div>
-            <p className="text-center text-xl m-0">Request a chain</p>
-            <Link
-              href="https://github.com/hotmanics/onchain-portfolio/issues"
-              target="#"
-              className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-            >
-              https://github.com/hotmanics/onchain-portfolio/issues
-            </Link>
-          </div>
-        </div>
+      <div className={`bg-secondary w-full flex flex-col flex-grow items-center justify-center`}>
+        <NoticeCard>
+          <NotSupportedNetworkCard chain={chainWithAttr} formattedNetwork={formattedNetwork} />
+        </NoticeCard>
       </div>
     );
   }
@@ -157,11 +137,13 @@ export default function UserPage({ params }: { params: { network: string; user: 
         />
       ) : (
         <div className="shadow-2xl rounded-xl">
-          <InactiveSubscriptionCard
-            connectedAddress={account?.address || ""}
-            profileAddress={profileAddress}
-            network={formattedNetwork}
-          />
+          <NoticeCard>
+            <InactiveSubscriptionCard
+              connectedAddress={account?.address || ""}
+              profileAddress={profileAddress}
+              network={formattedNetwork}
+            />
+          </NoticeCard>
         </div>
       )}
     </div>

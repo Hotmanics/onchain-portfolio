@@ -11,7 +11,7 @@ type Props = {
 
 export const InactiveSubscriptionCard = ({ connectedAddress, profileAddress, network }: Props) => {
   return (
-    <div className="flex flex-col bg-base-300 text-center rounded-xl items-center p-4 space-y-10">
+    <>
       <Address address={profileAddress} size="3xl" />
       <div>
         <p className="text-3xl m-0">
@@ -22,6 +22,6 @@ export const InactiveSubscriptionCard = ({ connectedAddress, profileAddress, net
         </p>
       </div>
       <ActivateServiceSection connectedAddress={connectedAddress || ""} profileAddress={profileAddress || ""} />
-    </div>
+    </>
   );
 };
