@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     PaymentVerifier: {
-      address: "0x5fc8d32690cc91d4c39d9d3abcbd16989f875707",
+      address: "0x8a791620dd6260079bf849dc5567adc3f2fdc318",
       abi: [
         {
           type: "constructor",
