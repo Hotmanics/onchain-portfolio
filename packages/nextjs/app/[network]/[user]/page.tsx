@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPublicClient, http, zeroAddress } from "viem";
 import { isAddress } from "viem";
-// import { Chain, createClient } from "viem";
 import { mainnet } from "viem/chains";
 import * as chains from "viem/chains";
 import { normalize } from "viem/ens";
@@ -15,10 +14,9 @@ import { NoticeCard } from "~~/components/onchain-portfolio/NoticeCard";
 import { Profile } from "~~/components/onchain-portfolio/Profile";
 import { UnknownNetworkCard } from "~~/components/onchain-portfolio/UnknownNetworkCard";
 import { useScaffoldContract } from "~~/hooks/scaffold-eth";
-import { useScaffoldReadContract2 } from "~~/hooks/scaffold-eth/useScaffoldReadContract2";
+import { useScaffoldReadContract } from "~~/hooks/scaffold-eth/useScaffoldReadContract";
 import profilePicturePlaceholder from "~~/public/profile-icon-placeholder.gif";
 import { useGlobalState } from "~~/services/store/store";
-// import { enabledChains, wagmiCreateConfig } from "~~/services/web3/wagmiConfig";
 import insertSpaces from "~~/utils/onchain-portfolio/textManipulation";
 import { NETWORKS_EXTRA_DATA, getAlchemyHttpUrl } from "~~/utils/scaffold-eth";
 
@@ -98,13 +96,6 @@ export default function UserPage({ params }: { params: { network: string; user: 
     chain: pageChain,
   });
 
-  // const { data: isProfileSubscriptionActive } = useScaffoldReadContract({
-  //   contractName: "PaymentVerifier",
-  //   functionName: "getIsSubscriptionActive",
-  //   args: [profileAddress],
-  //   chain: pageChain,
-  // });
-
   const chainWithAttr = useMemo(
     () => ({
       ...pageChain,
@@ -113,16 +104,14 @@ export default function UserPage({ params }: { params: { network: string; user: 
     [pageChain],
   );
 
-  // const wagmiConfig = createConfig({ ...wagmiCreateConfig, chains: [...enabledChains, pageChain] });
-
-  const { data: isProfileSubscriptionActive2 } = useScaffoldReadContract2({
+  const { data: isProfileSubscriptionActive } = useScaffoldReadContract({
     contractName: "PaymentVerifier",
     functionName: "getIsSubscriptionActive",
     args: [profileAddress],
     chain: chainWithAttr,
   });
 
-  console.log(isProfileSubscriptionActive2);
+  console.log(isProfileSubscriptionActive);
 
   // console.log(isProfileSubscriptionActive);
 
@@ -153,7 +142,7 @@ export default function UserPage({ params }: { params: { network: string; user: 
         <NotSupportedNetworkCard chain={chainWithAttr} formattedNetwork={formattedNetwork} />
       </NoticeCard>
     );
-  } else if (!isProfileSubscriptionActive2) {
+  } else if (!isProfileSubscriptionActive) {
     output = (
       <NoticeCard>
         <InactiveSubscriptionCard

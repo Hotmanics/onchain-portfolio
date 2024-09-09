@@ -29,4 +29,4 @@ export const wagmiCreateConfig = {
   },
 };
 
-export const wagmiConfig = createConfig(wagmiCreateConfig); //createConfig(wagmiCreateConfig);
+export const wagmiConfig = createConfig(wagmiCreateConfig);
