@@ -112,45 +112,39 @@ export default function UserPage({ params }: { params: { network: string; user: 
     );
   }
 
-  let urlErrorOutput;
+  let validationErrorOutput;
 
   if (pageChain === undefined) {
-    urlErrorOutput = <UnknownNetworkCard chainName={params.network} />;
+    validationErrorOutput = <UnknownNetworkCard chainName={params.network} />;
   } else if (paymentVerifier?.address === undefined) {
-    urlErrorOutput = <NotSupportedNetworkCard chain={chainWithAttr} formattedNetwork={formattedNetwork} />;
+    validationErrorOutput = <NotSupportedNetworkCard chain={chainWithAttr} formattedNetwork={formattedNetwork} />;
+  } else if (!isProfileSubscriptionActive) {
+    validationErrorOutput = (
+      <InactiveSubscriptionCard
+        connectedAddress={account?.address || ""}
+        profileAddress={profileAddress}
+        network={formattedNetwork}
+      />
+    );
   }
 
-  if (urlErrorOutput) {
+  if (validationErrorOutput) {
     return (
       <div className={`bg-primary w-full flex flex-col flex-grow items-center justify-center`}>
-        <NoticeCard>{urlErrorOutput}</NoticeCard>
+        <NoticeCard>{validationErrorOutput}</NoticeCard>
       </div>
     );
   }
 
   console.log("render check");
   return (
-    <div
-      className={`bg-primary w-full flex flex-col flex-grow items-center ${
-        isProfileSubscriptionActive ? "justify-start" : "justify-center"
-      }`}
-    >
-      {isProfileSubscriptionActive ? (
-        <Profile
-          address={profileAddress}
-          name={dummyUser.name}
-          description={dummyUser.description}
-          image={dummyUser.image}
-        />
-      ) : (
-        <NoticeCard>
-          <InactiveSubscriptionCard
-            connectedAddress={account?.address || ""}
-            profileAddress={profileAddress}
-            network={formattedNetwork}
-          />
-        </NoticeCard>
-      )}
+    <div className={`bg-primary w-full flex flex-col flex-grow items-center justify-start`}>
+      <Profile
+        address={profileAddress}
+        name={dummyUser.name}
+        description={dummyUser.description}
+        image={dummyUser.image}
+      />
     </div>
   );
 }
