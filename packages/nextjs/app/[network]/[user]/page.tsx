@@ -11,6 +11,7 @@ import { InactiveSubscriptionCard } from "~~/components/onchain-portfolio/Inacti
 import { NotSupportedNetworkCard } from "~~/components/onchain-portfolio/NotSupportedNetworkCard";
 import { NoticeCard } from "~~/components/onchain-portfolio/NoticeCard";
 import { Profile } from "~~/components/onchain-portfolio/Profile";
+import { UnknownNetworkCard } from "~~/components/onchain-portfolio/UnknownNetworkCard";
 import { useScaffoldContract, useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import profilePicturePlaceholder from "~~/public/profile-icon-placeholder.gif";
 import insertSpaces from "~~/utils/onchain-portfolio/textManipulation";
@@ -111,31 +112,18 @@ export default function UserPage({ params }: { params: { network: string; user: 
     );
   }
 
+  let urlErrorOutput;
+
   if (pageChain === undefined) {
-    return (
-      <div className={`bg-primary w-full flex flex-col flex-grow items-center justify-center`}>
-        <div className="shadow-2xl rounded-xl">
-          <NoticeCard>
-            <p className="text-xl m-0">The network in the URL is invalid.</p>
-            <p className="text-xl m-0">Please correct any mistakes or select a network from this dropdown.</p>
-            <div>
-              <p className="text-xl m-0">Select another network</p>
-              <p className="text-md m-0">TODO:// Dropdown - Select another network</p>
-            </div>
-          </NoticeCard>
-        </div>
-      </div>
-    );
+    urlErrorOutput = <UnknownNetworkCard chainName={params.network} />;
+  } else if (paymentVerifier?.address === undefined) {
+    urlErrorOutput = <NotSupportedNetworkCard chain={chainWithAttr} formattedNetwork={formattedNetwork} />;
   }
 
-  if (paymentVerifier?.address === undefined) {
+  if (urlErrorOutput) {
     return (
       <div className={`bg-primary w-full flex flex-col flex-grow items-center justify-center`}>
-        <div className="shadow-2xl rounded-xl">
-          <NoticeCard>
-            <NotSupportedNetworkCard chain={chainWithAttr} formattedNetwork={formattedNetwork} />
-          </NoticeCard>
-        </div>
+        <NoticeCard>{urlErrorOutput}</NoticeCard>
       </div>
     );
   }
@@ -155,15 +143,13 @@ export default function UserPage({ params }: { params: { network: string; user: 
           image={dummyUser.image}
         />
       ) : (
-        <div className="shadow-2xl rounded-xl">
-          <NoticeCard>
-            <InactiveSubscriptionCard
-              connectedAddress={account?.address || ""}
-              profileAddress={profileAddress}
-              network={formattedNetwork}
-            />
-          </NoticeCard>
-        </div>
+        <NoticeCard>
+          <InactiveSubscriptionCard
+            connectedAddress={account?.address || ""}
+            profileAddress={profileAddress}
+            network={formattedNetwork}
+          />
+        </NoticeCard>
       )}
     </div>
   );
