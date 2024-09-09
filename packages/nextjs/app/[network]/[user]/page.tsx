@@ -93,8 +93,6 @@ export default function UserPage({ params }: { params: { network: string; user: 
     chain: pageChain,
   });
 
-  console.log(pageChain);
-
   const chainWithAttr = useMemo(
     () => ({
       ...pageChain,
@@ -118,8 +116,11 @@ export default function UserPage({ params }: { params: { network: string; user: 
       <div className={`bg-secondary w-full flex flex-col flex-grow items-center justify-center`}>
         <NoticeCard>
           <p className="text-xl m-0">The network in the URL is invalid.</p>
-          <p className="text-xl m-0">Please correct any mistakes or select from this dropdown.</p>
-          <p className="text-xl m-0">TODO:// Add dropdown</p>
+          <p className="text-xl m-0">Please correct any mistakes or select a network from this dropdown.</p>
+          <div>
+            <p className="text-xl m-0">Select another network</p>
+            <p className="text-md m-0">TODO:// Dropdown - Select another network</p>
+          </div>
         </NoticeCard>
       </div>
     );

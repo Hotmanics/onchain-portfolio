@@ -28,6 +28,11 @@ export const NotSupportedNetworkCard = ({ chain }: Props) => {
           https://github.com/hotmanics/onchain-portfolio/issues
         </Link>
       </div>
+
+      <div>
+        <p className="text-xl m-0">Select another network</p>
+        <p className="text-md m-0">TODO:// Dropdown - Select another network</p>
+      </div>
     </>
   );
 };
