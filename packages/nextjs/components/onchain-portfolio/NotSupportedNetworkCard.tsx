@@ -9,13 +9,13 @@ type Props = {
   formattedNetwork: string;
 };
 
-export const NotSupportedNetworkCard = ({ chain, formattedNetwork }: Props) => {
+export const NotSupportedNetworkCard = ({ chain }: Props) => {
   const networkColor = useNetworkColor(chain);
 
   return (
     <>
       <p className="text-center text-4xl">
-        <span style={{ color: networkColor }}>{formattedNetwork}</span> is not a supported network!
+        <span style={{ color: networkColor }}>{chain.name}</span> is not a supported network!
       </p>
 
       <div>

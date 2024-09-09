@@ -93,7 +93,7 @@ export default function UserPage({ params }: { params: { network: string; user: 
     chain: pageChain,
   });
 
-  console.log(paymentVerifier);
+  console.log(pageChain);
 
   const chainWithAttr = useMemo(
     () => ({
@@ -109,6 +109,18 @@ export default function UserPage({ params }: { params: { network: string; user: 
         <p className="text-center text-4xl">{"Spinning up the hamsters."}</p>
         <p className="text-center text-4xl">{"Tricking the hamsters with more cheese."}</p>
         <p className="text-center text-4xl">{"Buying more hamsters."}</p>
+      </div>
+    );
+  }
+
+  if (pageChain === undefined) {
+    return (
+      <div className={`bg-secondary w-full flex flex-col flex-grow items-center justify-center`}>
+        <NoticeCard>
+          <p className="text-xl m-0">The network in the URL is invalid.</p>
+          <p className="text-xl m-0">Please correct any mistakes or select from this dropdown.</p>
+          <p className="text-xl m-0">TODO:// Add dropdown</p>
+        </NoticeCard>
       </div>
     );
   }
