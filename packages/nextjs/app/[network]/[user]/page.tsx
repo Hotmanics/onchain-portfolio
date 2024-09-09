@@ -103,7 +103,7 @@ export default function UserPage({ params }: { params: { network: string; user: 
 
   if (isLoadingPaymentVerifier) {
     return (
-      <div className="bg-secondary w-full flex flex-col flex-grow p-10 justify-center items-center">
+      <div className="bg-primary w-full flex flex-col flex-grow p-10 justify-center items-center">
         <p className="text-center text-4xl">{"Spinning up the hamsters."}</p>
         <p className="text-center text-4xl">{"Tricking the hamsters with more cheese."}</p>
         <p className="text-center text-4xl">{"Buying more hamsters."}</p>
@@ -113,25 +113,29 @@ export default function UserPage({ params }: { params: { network: string; user: 
 
   if (pageChain === undefined) {
     return (
-      <div className={`bg-secondary w-full flex flex-col flex-grow items-center justify-center`}>
-        <NoticeCard>
-          <p className="text-xl m-0">The network in the URL is invalid.</p>
-          <p className="text-xl m-0">Please correct any mistakes or select a network from this dropdown.</p>
-          <div>
-            <p className="text-xl m-0">Select another network</p>
-            <p className="text-md m-0">TODO:// Dropdown - Select another network</p>
-          </div>
-        </NoticeCard>
+      <div className={`bg-primary w-full flex flex-col flex-grow items-center justify-center`}>
+        <div className="shadow-2xl rounded-xl">
+          <NoticeCard>
+            <p className="text-xl m-0">The network in the URL is invalid.</p>
+            <p className="text-xl m-0">Please correct any mistakes or select a network from this dropdown.</p>
+            <div>
+              <p className="text-xl m-0">Select another network</p>
+              <p className="text-md m-0">TODO:// Dropdown - Select another network</p>
+            </div>
+          </NoticeCard>
+        </div>
       </div>
     );
   }
 
   if (paymentVerifier?.address === undefined) {
     return (
-      <div className={`bg-secondary w-full flex flex-col flex-grow items-center justify-center`}>
-        <NoticeCard>
-          <NotSupportedNetworkCard chain={chainWithAttr} formattedNetwork={formattedNetwork} />
-        </NoticeCard>
+      <div className={`bg-primary w-full flex flex-col flex-grow items-center justify-center`}>
+        <div className="shadow-2xl rounded-xl">
+          <NoticeCard>
+            <NotSupportedNetworkCard chain={chainWithAttr} formattedNetwork={formattedNetwork} />
+          </NoticeCard>
+        </div>
       </div>
     );
   }
@@ -139,7 +143,7 @@ export default function UserPage({ params }: { params: { network: string; user: 
   console.log("render check");
   return (
     <div
-      className={`bg-secondary w-full flex flex-col flex-grow items-center ${
+      className={`bg-primary w-full flex flex-col flex-grow items-center ${
         isProfileSubscriptionActive ? "justify-start" : "justify-center"
       }`}
     >
