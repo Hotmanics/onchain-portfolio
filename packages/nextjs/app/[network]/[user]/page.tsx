@@ -6,19 +6,22 @@ import { isAddress } from "viem";
 import { mainnet } from "viem/chains";
 import * as chains from "viem/chains";
 import { normalize } from "viem/ens";
-import { useAccount } from "wagmi";
+import { useAccount, useConfig } from "wagmi";
+import { readContract } from "wagmi/actions";
 import { GrowCard } from "~~/components/onchain-portfolio/GrowCard";
 import { InactiveSubscriptionCard } from "~~/components/onchain-portfolio/InactiveSubscriptionCard";
 import { NotSupportedNetworkCard } from "~~/components/onchain-portfolio/NotSupportedNetworkCard";
 import { NoticeCard } from "~~/components/onchain-portfolio/NoticeCard";
 import { Profile } from "~~/components/onchain-portfolio/Profile";
 import { UnknownNetworkCard } from "~~/components/onchain-portfolio/UnknownNetworkCard";
+import deployedContracts from "~~/contracts/deployedContracts";
 import { useScaffoldContract } from "~~/hooks/scaffold-eth";
-import { useScaffoldReadContract } from "~~/hooks/scaffold-eth/useScaffoldReadContract";
 import profilePicturePlaceholder from "~~/public/profile-icon-placeholder.gif";
 import { useGlobalState } from "~~/services/store/store";
+import { enabledChains } from "~~/services/web3/wagmiConfig";
 import insertSpaces from "~~/utils/onchain-portfolio/textManipulation";
 import { NETWORKS_EXTRA_DATA, getAlchemyHttpUrl } from "~~/utils/scaffold-eth";
+import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const dummyUser = {
   address: zeroAddress,
@@ -104,14 +107,58 @@ export default function UserPage({ params }: { params: { network: string; user: 
     [pageChain],
   );
 
-  const { data: isProfileSubscriptionActive } = useScaffoldReadContract({
-    contractName: "PaymentVerifier",
-    functionName: "getIsSubscriptionActive",
-    args: [profileAddress],
-    chain: chainWithAttr,
-  });
+  const wagmiConfig = useConfig();
 
-  console.log(isProfileSubscriptionActive);
+  useEffect(() => {
+    async function get() {
+      const contracts = deployedContracts as GenericContractsDeclaration | null;
+      if (contracts === null) return;
+
+      let presentChainId;
+
+      for (let i = 0; i < enabledChains.length; i++) {
+        if (enabledChains[i].id === pageChain?.id) {
+          presentChainId = enabledChains[i].id;
+          break;
+        }
+      }
+
+      if (presentChainId === undefined) return;
+
+      const contract = contracts[presentChainId].PaymentVerifier;
+
+      console.log(presentChainId);
+
+      console.log(contract.address);
+
+      const result = await readContract(wagmiConfig, {
+        abi: contract.abi,
+        address: contract.address,
+        functionName: "getIsSubscriptionActive",
+        chainId: presentChainId,
+        args: [profileAddress],
+      });
+
+      console.log(result);
+      setIsProfileSubscriptionActive(result as boolean);
+    }
+    get();
+  }, [wagmiConfig, wagmiConfig?.chains?.length, pageChain?.id, profileAddress]);
+
+  const [isProfileSubscriptionActive, setIsProfileSubscriptionActive] = useState<boolean>();
+
+  // if (!isPresent) {
+  //   console.log(paymentVerifier);
+  // }
+
+  // const { data: isProfileSubscriptionActive } = useScaffoldReadContract({
+  //   contractName: "PaymentVerifier",
+  //   functionName: "getIsSubscriptionActive",
+  //   args: [profileAddress],
+  //   chain: chainWithAttr,
+  // });
+
+  // console.log(isProfileSubscriptionActive);
 
   // console.log(isProfileSubscriptionActive);
 
@@ -130,7 +177,8 @@ export default function UserPage({ params }: { params: { network: string; user: 
         <p className="text-center text-4xl">{"Buying more hamsters."}</p>
       </>
     );
-  } else if (pageChain === undefined) {
+  }
+  if (pageChain === undefined) {
     output = (
       <NoticeCard>
         <UnknownNetworkCard chainName={params.network} />
