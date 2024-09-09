@@ -5,13 +5,16 @@ import { RainbowKitProvider, darkTheme, lightTheme } from "@rainbow-me/rainbowki
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
 import { Toaster } from "react-hot-toast";
-import { WagmiProvider } from "wagmi";
+// import { Chain } from "viem";
+// import * as chains from "viem/chains";
+import { WagmiProvider, createConfig } from "wagmi";
 import { Footer } from "~~/components/Footer";
 import { Header } from "~~/components/Header";
 import { BlockieAvatar } from "~~/components/scaffold-eth";
 import { ProgressBar } from "~~/components/scaffold-eth/ProgressBar";
 import { useInitializeNativeCurrencyPrice } from "~~/hooks/scaffold-eth";
-import { wagmiConfig } from "~~/services/web3/wagmiConfig";
+import { useGlobalState } from "~~/services/store/store";
+import { enabledChains, wagmiCreateConfig } from "~~/services/web3/wagmiConfig";
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
   useInitializeNativeCurrencyPrice();
@@ -44,6 +47,10 @@ export const ScaffoldEthAppWithProviders = ({ children }: { children: React.Reac
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const additionalChains = useGlobalState(({ additionalChains }) => additionalChains);
+
+  const wagmiConfig = createConfig({ ...wagmiCreateConfig, chains: [...enabledChains, ...additionalChains] });
 
   return (
     <WagmiProvider config={wagmiConfig}>

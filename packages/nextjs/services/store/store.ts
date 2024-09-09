@@ -1,3 +1,5 @@
+import { Chain } from "viem/chains";
+// import * as chains from "viem/chains";
 import create from "zustand";
 import scaffoldConfig from "~~/scaffold.config";
 import { ChainWithAttributes } from "~~/utils/scaffold-eth";
@@ -20,6 +22,8 @@ type GlobalState = {
   setIsNativeCurrencyFetching: (newIsNativeCurrencyFetching: boolean) => void;
   targetNetwork: ChainWithAttributes;
   setTargetNetwork: (newTargetNetwork: ChainWithAttributes) => void;
+  additionalChains: readonly Chain[];
+  setAdditionalChains: (newAdditionalChains: readonly Chain[]) => void;
 };
 
 export const useGlobalState = create<GlobalState>(set => ({
@@ -32,5 +36,8 @@ export const useGlobalState = create<GlobalState>(set => ({
   setIsNativeCurrencyFetching: (newValue: boolean): void =>
     set(state => ({ nativeCurrency: { ...state.nativeCurrency, isFetching: newValue } })),
   targetNetwork: scaffoldConfig.targetNetworks[0],
-  setTargetNetwork: (newTargetNetwork: ChainWithAttributes) => set(() => ({ targetNetwork: newTargetNetwork })),
+  setTargetNetwork: (newTargetNetwork: Chain) => set(() => ({ targetNetwork: newTargetNetwork })),
+  additionalChains: [scaffoldConfig.targetNetworks[0]],
+  setAdditionalChains: (newAdditionalChains: readonly Chain[]) =>
+    set(() => ({ additionalChains: newAdditionalChains })),
 }));

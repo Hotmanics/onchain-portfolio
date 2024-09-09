@@ -3,17 +3,22 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPublicClient, http, zeroAddress } from "viem";
 import { isAddress } from "viem";
+// import { Chain, createClient } from "viem";
 import { mainnet } from "viem/chains";
 import * as chains from "viem/chains";
 import { normalize } from "viem/ens";
 import { useAccount } from "wagmi";
+import { GrowCard } from "~~/components/onchain-portfolio/GrowCard";
 import { InactiveSubscriptionCard } from "~~/components/onchain-portfolio/InactiveSubscriptionCard";
 import { NotSupportedNetworkCard } from "~~/components/onchain-portfolio/NotSupportedNetworkCard";
 import { NoticeCard } from "~~/components/onchain-portfolio/NoticeCard";
 import { Profile } from "~~/components/onchain-portfolio/Profile";
 import { UnknownNetworkCard } from "~~/components/onchain-portfolio/UnknownNetworkCard";
-import { useScaffoldContract, useScaffoldReadContract } from "~~/hooks/scaffold-eth";
+import { useScaffoldContract } from "~~/hooks/scaffold-eth";
+import { useScaffoldReadContract2 } from "~~/hooks/scaffold-eth/useScaffoldReadContract2";
 import profilePicturePlaceholder from "~~/public/profile-icon-placeholder.gif";
+import { useGlobalState } from "~~/services/store/store";
+// import { enabledChains, wagmiCreateConfig } from "~~/services/web3/wagmiConfig";
 import insertSpaces from "~~/utils/onchain-portfolio/textManipulation";
 import { NETWORKS_EXTRA_DATA, getAlchemyHttpUrl } from "~~/utils/scaffold-eth";
 
@@ -58,12 +63,6 @@ export default function UserPage({ params }: { params: { network: string; user: 
 
   const formattedNetwork = insertSpaces(params.network).replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
 
-  const { data: isProfileSubscriptionActive } = useScaffoldReadContract({
-    contractName: "PaymentVerifier",
-    functionName: "getIsSubscriptionActive",
-    args: [profileAddress],
-  });
-
   //   const { data: paymentCadence } = useScaffoldReadContract({
   //     contractName: "PaymentVerifier",
   //     functionName: "getPaymentCadence",
@@ -79,20 +78,32 @@ export default function UserPage({ params }: { params: { network: string; user: 
 
   const [pageChain, setPageChain] = useState<any>();
 
+  const setAdditionalChains = useGlobalState(({ setAdditionalChains }) => setAdditionalChains);
+
   useEffect(() => {
     async function get() {
       const value = chains as any;
       const chain2 = value[params.network];
 
       setPageChain(chain2);
+      setAdditionalChains([chain2]);
     }
     get();
-  }, [params.network]);
+  }, [params.network, setAdditionalChains]);
+
+  // const additionalChains = useGlobalState(({ additionalChains }) => additionalChains);
 
   const { data: paymentVerifier, isLoading: isLoadingPaymentVerifier } = useScaffoldContract({
     contractName: "PaymentVerifier",
     chain: pageChain,
   });
+
+  // const { data: isProfileSubscriptionActive } = useScaffoldReadContract({
+  //   contractName: "PaymentVerifier",
+  //   functionName: "getIsSubscriptionActive",
+  //   args: [profileAddress],
+  //   chain: pageChain,
+  // });
 
   const chainWithAttr = useMemo(
     () => ({
@@ -102,49 +113,73 @@ export default function UserPage({ params }: { params: { network: string; user: 
     [pageChain],
   );
 
+  // const wagmiConfig = createConfig({ ...wagmiCreateConfig, chains: [...enabledChains, pageChain] });
+
+  const { data: isProfileSubscriptionActive2 } = useScaffoldReadContract2({
+    contractName: "PaymentVerifier",
+    functionName: "getIsSubscriptionActive",
+    args: [profileAddress],
+    chain: chainWithAttr,
+  });
+
+  console.log(isProfileSubscriptionActive2);
+
+  // console.log(isProfileSubscriptionActive);
+
+  // console.log(pageChain);
+  // console.log(paymentVerifier);
+
+  let justify: "start" | "center" = "start";
+  let output;
+
   if (isLoadingPaymentVerifier) {
-    return (
-      <div className="bg-primary w-full flex flex-col flex-grow p-10 justify-center items-center">
+    justify = "center";
+    output = (
+      <>
         <p className="text-center text-4xl">{"Spinning up the hamsters."}</p>
         <p className="text-center text-4xl">{"Tricking the hamsters with more cheese."}</p>
         <p className="text-center text-4xl">{"Buying more hamsters."}</p>
-      </div>
+      </>
     );
-  }
-
-  let validationErrorOutput;
-
-  if (pageChain === undefined) {
-    validationErrorOutput = <UnknownNetworkCard chainName={params.network} />;
+  } else if (pageChain === undefined) {
+    output = (
+      <NoticeCard>
+        <UnknownNetworkCard chainName={params.network} />
+      </NoticeCard>
+    );
   } else if (paymentVerifier?.address === undefined) {
-    validationErrorOutput = <NotSupportedNetworkCard chain={chainWithAttr} formattedNetwork={formattedNetwork} />;
-  } else if (!isProfileSubscriptionActive) {
-    validationErrorOutput = (
-      <InactiveSubscriptionCard
-        connectedAddress={account?.address || ""}
-        profileAddress={profileAddress}
-        network={formattedNetwork}
-      />
+    output = (
+      <NoticeCard>
+        <NotSupportedNetworkCard chain={chainWithAttr} formattedNetwork={formattedNetwork} />
+      </NoticeCard>
+    );
+  } else if (!isProfileSubscriptionActive2) {
+    output = (
+      <NoticeCard>
+        <InactiveSubscriptionCard
+          connectedAddress={account?.address || ""}
+          profileAddress={profileAddress}
+          network={formattedNetwork}
+        />
+      </NoticeCard>
     );
   }
 
-  if (validationErrorOutput) {
-    return (
-      <div className={`bg-primary w-full flex flex-col flex-grow items-center justify-center`}>
-        <NoticeCard>{validationErrorOutput}</NoticeCard>
-      </div>
-    );
+  if (output) {
+    justify = "center";
   }
 
-  console.log("render check");
-  return (
-    <div className={`bg-primary w-full flex flex-col flex-grow items-center justify-start`}>
+  if (!output) {
+    output = (
       <Profile
         address={profileAddress}
         name={dummyUser.name}
         description={dummyUser.description}
         image={dummyUser.image}
       />
-    </div>
-  );
+    );
+  }
+
+  console.log("render check");
+  return <GrowCard justify={justify}>{output}</GrowCard>;
 }

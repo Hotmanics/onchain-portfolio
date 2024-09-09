@@ -1,3 +1,4 @@
+import { ChainWithAttributes } from "./networks";
 import { MutateOptions } from "@tanstack/react-query";
 import {
   Abi,
@@ -171,6 +172,7 @@ export type UseScaffoldReadConfig<
 > = {
   contractName: TContractName;
   watch?: boolean;
+  chain?: ChainWithAttributes;
 } & IsContractDeclarationMissing<
   Partial<UseReadContractParameters>,
   {
