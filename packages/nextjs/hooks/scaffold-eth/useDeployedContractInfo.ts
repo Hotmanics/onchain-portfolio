@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useTargetNetwork } from "./useTargetNetwork";
+// import { useTargetNetwork } from "./useTargetNetwork";
 import { useIsMounted } from "usehooks-ts";
 import { usePublicClient } from "wagmi";
 import { Contract, ContractCodeStatus, ContractName, contracts } from "~~/utils/scaffold-eth/contract";
@@ -10,15 +10,13 @@ import { Contract, ContractCodeStatus, ContractName, contracts } from "~~/utils/
  */
 export const useDeployedContractInfo = <TContractName extends ContractName>(
   contractName: TContractName,
-  chainId?: number,
+  chainId: number,
 ) => {
   const isMounted = useIsMounted();
-  const { targetNetwork } = useTargetNetwork();
-  const deployedContract = contracts?.[chainId ? chainId : targetNetwork.id]?.[
-    contractName as ContractName
-  ] as Contract<TContractName>;
+  // const { targetNetwork } = useTargetNetwork();
+  const deployedContract = contracts?.[chainId]?.[contractName as ContractName] as Contract<TContractName>;
   const [status, setStatus] = useState<ContractCodeStatus>(ContractCodeStatus.LOADING);
-  const publicClient = usePublicClient({ chainId: chainId ? chainId : targetNetwork.id });
+  const publicClient = usePublicClient({ chainId });
 
   useEffect(() => {
     const checkContractDeployment = async () => {

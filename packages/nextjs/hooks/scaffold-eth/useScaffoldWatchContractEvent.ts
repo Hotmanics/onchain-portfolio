@@ -21,8 +21,8 @@ export const useScaffoldWatchContractEvent = <
   eventName,
   onLogs,
 }: UseScaffoldEventConfig<TContractName, TEventName>) => {
-  const { data: deployedContractData } = useDeployedContractInfo(contractName);
   const { targetNetwork } = useTargetNetwork();
+  const { data: deployedContractData } = useDeployedContractInfo(contractName, targetNetwork.id);
 
   const addIndexedArgsToLogs = (logs: Log[]) => logs.map(addIndexedArgsToEvent);
   const listenerWithIndexedArgs = (logs: Log[]) => onLogs(addIndexedArgsToLogs(logs) as Parameters<typeof onLogs>[0]);

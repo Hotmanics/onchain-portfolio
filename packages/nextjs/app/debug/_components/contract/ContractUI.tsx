@@ -21,7 +21,10 @@ type ContractUIProps = {
 export const ContractUI = ({ contractName, className = "" }: ContractUIProps) => {
   const [refreshDisplayVariables, triggerRefreshDisplayVariables] = useReducer(value => !value, false);
   const { targetNetwork } = useTargetNetwork();
-  const { data: deployedContractData, isLoading: deployedContractLoading } = useDeployedContractInfo(contractName);
+  const { data: deployedContractData, isLoading: deployedContractLoading } = useDeployedContractInfo(
+    contractName,
+    targetNetwork.id,
+  );
   const networkColor = useNetworkColor();
 
   if (deployedContractLoading) {

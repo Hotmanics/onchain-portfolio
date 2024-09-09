@@ -90,8 +90,10 @@ export default function UserPage({ params }: { params: { network: string; user: 
 
   const { data: paymentVerifier, isLoading: isLoadingPaymentVerifier } = useScaffoldContract({
     contractName: "PaymentVerifier",
-    chainId: pageChain?.id,
+    chain: pageChain,
   });
+
+  console.log(paymentVerifier);
 
   const chainWithAttr = useMemo(
     () => ({

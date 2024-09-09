@@ -31,7 +31,7 @@ export const useScaffoldWriteContract = <TContractName extends ContractName>(
 
   const wagmiContractWrite = useWriteContract(writeContractParams);
 
-  const { data: deployedContractData } = useDeployedContractInfo(contractName);
+  const { data: deployedContractData } = useDeployedContractInfo(contractName, targetNetwork.id);
 
   const sendContractWriteAsyncTx = async <
     TFunctionName extends ExtractAbiFunctionNames<ContractAbi<TContractName>, "nonpayable" | "payable">,
