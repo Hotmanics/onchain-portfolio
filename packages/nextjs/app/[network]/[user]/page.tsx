@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import { createPublicClient, http, zeroAddress } from "viem";
 import { isAddress } from "viem";
 import { mainnet } from "viem/chains";
+import * as chains from "viem/chains";
 import { normalize } from "viem/ens";
 import { useAccount } from "wagmi";
 import { InactiveSubscriptionCard } from "~~/components/onchain-portfolio/InactiveSubscriptionCard";
 import { Profile } from "~~/components/onchain-portfolio/Profile";
-// import { Address } from "~~/components/scaffold-eth";
 import { useScaffoldContract, useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import profilePicturePlaceholder from "~~/public/profile-icon-placeholder.gif";
 import insertSpaces from "~~/utils/onchain-portfolio/textManipulation";
@@ -74,12 +74,24 @@ export default function UserPage({ params }: { params: { network: string; user: 
 
   // const hasBoughtBefore = lastPaymentDate === BigInt(0) ? false : true;
 
-  const {
-    //data: paymentVerifier,
-    isLoading: isLoadingPaymentVerifier,
-  } = useScaffoldContract({
+  const [pageChain, setPageChain] = useState<number>();
+
+  useEffect(() => {
+    async function get() {
+      const value = chains as any;
+      const chain2 = value[params.network];
+
+      setPageChain(chain2.id);
+    }
+    get();
+  }, [params.network]);
+
+  const { data: paymentVerifier, isLoading: isLoadingPaymentVerifier } = useScaffoldContract({
     contractName: "PaymentVerifier",
+    chainId: pageChain,
   });
+
+  console.log(paymentVerifier);
 
   if (isLoadingPaymentVerifier) {
     return (
@@ -91,13 +103,13 @@ export default function UserPage({ params }: { params: { network: string; user: 
     );
   }
 
-  // if (paymentVerifier?.address === undefined) {
-  //   return (
-  //     <div className="bg-secondary w-full p-10">
-  //       <p className="text-center text-4xl">{formattedNetwork + " is not a supported network!"}</p>
-  //     </div>
-  //   );
-  // }
+  if (paymentVerifier?.address === undefined) {
+    return (
+      <div className="bg-secondary w-full p-10">
+        <p className="text-center text-4xl">{formattedNetwork + " is not a supported network!"}</p>
+      </div>
+    );
+  }
 
   console.log("render check");
   return (
@@ -114,11 +126,13 @@ export default function UserPage({ params }: { params: { network: string; user: 
           image={dummyUser.image}
         />
       ) : (
-        <InactiveSubscriptionCard
-          connectedAddress={account?.address || ""}
-          profileAddress={profileAddress}
-          network={formattedNetwork}
-        />
+        <div className="shadow-2xl rounded-xl">
+          <InactiveSubscriptionCard
+            connectedAddress={account?.address || ""}
+            profileAddress={profileAddress}
+            network={formattedNetwork}
+          />
+        </div>
       )}
     </div>
   );
