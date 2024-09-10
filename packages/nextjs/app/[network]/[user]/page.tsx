@@ -1,7 +1,6 @@
 "use client";
 
 // import { useEffect } from "react";
-// import { zeroAddress } from "viem";
 import { useAccount } from "wagmi";
 import { GrowCard } from "~~/components/onchain-portfolio/GrowCard";
 import { InactiveSubscriptionCard } from "~~/components/onchain-portfolio/InactiveSubscriptionCard";
@@ -13,15 +12,7 @@ import { useComplexIsProfileSubscriptionActive } from "~~/hooks/onchain-portfoli
 import { useGetChainByValue } from "~~/hooks/onchain-portfolio/useGetChainByValue";
 import { useProfileAddress } from "~~/hooks/onchain-portfolio/useProfileAddress";
 import { useScaffoldContract, useScaffoldReadContract } from "~~/hooks/scaffold-eth";
-// import profilePicturePlaceholder from "~~/public/surprised-pikachu-placeholder.gif";
 import insertSpaces from "~~/utils/onchain-portfolio/textManipulation";
-
-// const dummyUser = {
-//   address: zeroAddress,
-//   name: "Dummy Dumminson",
-//   description: "A big dummy, making dummy steps one dum dum at a time.",
-//   image: profilePicturePlaceholder.src,
-// };
 
 export default function UserPage({ params }: { params: { network: string; user: string } }) {
   //   const { data: paymentCadence } = useScaffoldReadContract({
