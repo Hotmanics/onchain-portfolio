@@ -1,11 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { createPublicClient, http, zeroAddress } from "viem";
-import { isAddress } from "viem";
-import { mainnet } from "viem/chains";
+import { zeroAddress } from "viem";
 import * as chains from "viem/chains";
-import { normalize } from "viem/ens";
 import { useAccount, useConfig } from "wagmi";
 import { readContract } from "wagmi/actions";
 import { GrowCard } from "~~/components/onchain-portfolio/GrowCard";
@@ -15,11 +12,12 @@ import { NoticeCard } from "~~/components/onchain-portfolio/NoticeCard";
 import { Profile } from "~~/components/onchain-portfolio/Profile";
 import { UnknownNetworkCard } from "~~/components/onchain-portfolio/UnknownNetworkCard";
 import deployedContracts from "~~/contracts/deployedContracts";
+import { useProfileAddress } from "~~/hooks/onchain-portfolio/useProfileAddress";
 import { useScaffoldContract } from "~~/hooks/scaffold-eth";
 import profilePicturePlaceholder from "~~/public/profile-icon-placeholder.gif";
 import { enabledChains } from "~~/services/web3/wagmiConfig";
 import insertSpaces from "~~/utils/onchain-portfolio/textManipulation";
-import { NETWORKS_EXTRA_DATA, getAlchemyHttpUrl } from "~~/utils/scaffold-eth";
+import { NETWORKS_EXTRA_DATA } from "~~/utils/scaffold-eth";
 import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const dummyUser = {
@@ -30,38 +28,7 @@ const dummyUser = {
 };
 
 export default function UserPage({ params }: { params: { network: string; user: string } }) {
-  const [profileAddress, setProfileAddress] = useState<string>(dummyUser.address);
-
-  // const [isValidEns, setIsValidEns] = useState<boolean>();
-
-  const [isLoadingProfileAddress, setIsLoadingProfileAddress] = useState<boolean>(false);
-
-  useEffect(() => {
-    async function get() {
-      setIsLoadingProfileAddress(true);
-      let userAddress;
-
-      if (isAddress(params.user)) {
-        userAddress = params.user;
-      } else {
-        const publicClient = createPublicClient({
-          chain: mainnet,
-          transport: http(getAlchemyHttpUrl(mainnet.id)),
-        });
-
-        const addr = await publicClient.getEnsAddress({
-          name: normalize(params.user),
-        });
-
-        userAddress = addr as string;
-        // setIsValidEns(true);
-      }
-
-      setProfileAddress(userAddress);
-      setIsLoadingProfileAddress(false);
-    }
-    get();
-  }, [params.user]);
+  const { profileAddress, isLoadingProfileAddress } = useProfileAddress(params.user);
 
   const account = useAccount();
 
