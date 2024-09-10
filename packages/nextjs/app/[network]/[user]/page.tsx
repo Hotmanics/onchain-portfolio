@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { zeroAddress } from "viem";
 import { useAccount, useConfig } from "wagmi";
 import { readContract } from "wagmi/actions";
@@ -17,7 +17,6 @@ import { useScaffoldContract } from "~~/hooks/scaffold-eth";
 import profilePicturePlaceholder from "~~/public/profile-icon-placeholder.gif";
 import { enabledChains } from "~~/services/web3/wagmiConfig";
 import insertSpaces from "~~/utils/onchain-portfolio/textManipulation";
-import { NETWORKS_EXTRA_DATA } from "~~/utils/scaffold-eth";
 import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const dummyUser = {
@@ -53,14 +52,6 @@ export default function UserPage({ params }: { params: { network: string; user: 
     contractName: "PaymentVerifier",
     chain: retrievedChain,
   });
-
-  const chainWithAttr = useMemo(
-    () => ({
-      ...retrievedChain,
-      ...NETWORKS_EXTRA_DATA[retrievedChain?.id],
-    }),
-    [retrievedChain],
-  );
 
   const wagmiConfig = useConfig();
 
@@ -144,7 +135,7 @@ export default function UserPage({ params }: { params: { network: string; user: 
 
       output = (
         <NoticeCard>
-          <NotSupportedNetworkCard chain={chainWithAttr} formattedNetwork={formattedNetwork} />
+          <NotSupportedNetworkCard chain={retrievedChain} formattedNetwork={formattedNetwork} />
         </NoticeCard>
       );
     } else if (!isProfileSubscriptionActive) {
