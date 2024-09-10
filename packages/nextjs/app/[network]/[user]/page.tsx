@@ -1,6 +1,7 @@
 "use client";
 
-import { zeroAddress } from "viem";
+// import { useEffect } from "react";
+// import { zeroAddress } from "viem";
 import { useAccount } from "wagmi";
 import { GrowCard } from "~~/components/onchain-portfolio/GrowCard";
 import { InactiveSubscriptionCard } from "~~/components/onchain-portfolio/InactiveSubscriptionCard";
@@ -11,16 +12,16 @@ import { UnknownNetworkCard } from "~~/components/onchain-portfolio/UnknownNetwo
 import { useComplexIsProfileSubscriptionActive } from "~~/hooks/onchain-portfolio/useComplexIsProfileSubscriptionActive";
 import { useGetChainByValue } from "~~/hooks/onchain-portfolio/useGetChainByValue";
 import { useProfileAddress } from "~~/hooks/onchain-portfolio/useProfileAddress";
-import { useScaffoldContract } from "~~/hooks/scaffold-eth";
-import profilePicturePlaceholder from "~~/public/surprised-pikachu-placeholder.gif";
+import { useScaffoldContract, useScaffoldReadContract } from "~~/hooks/scaffold-eth";
+// import profilePicturePlaceholder from "~~/public/surprised-pikachu-placeholder.gif";
 import insertSpaces from "~~/utils/onchain-portfolio/textManipulation";
 
-const dummyUser = {
-  address: zeroAddress,
-  name: "Dummy Dumminson",
-  description: "A big dummy, making dummy steps one dum dum at a time.",
-  image: profilePicturePlaceholder.src,
-};
+// const dummyUser = {
+//   address: zeroAddress,
+//   name: "Dummy Dumminson",
+//   description: "A big dummy, making dummy steps one dum dum at a time.",
+//   image: profilePicturePlaceholder.src,
+// };
 
 export default function UserPage({ params }: { params: { network: string; user: string } }) {
   //   const { data: paymentCadence } = useScaffoldReadContract({
@@ -36,6 +37,10 @@ export default function UserPage({ params }: { params: { network: string; user: 
 
   // const hasBoughtBefore = lastPaymentDate === BigInt(0) ? false : true;
 
+  // useEffect(() => {
+  //   const result = loadBurnerSK();
+  //   console.log(result);
+  // }, []);
   const account = useAccount();
 
   const { profileAddress, isLoadingProfileAddress } = useProfileAddress(params.user);
@@ -51,6 +56,12 @@ export default function UserPage({ params }: { params: { network: string; user: 
 
   const { isProfileSubscriptionActive, isLoadingIsProfileSubscriptionActive, refetch } =
     useComplexIsProfileSubscriptionActive(retrievedChain, profileAddress);
+
+  const { data: profileData } = useScaffoldReadContract({
+    contractName: "DummyProfile",
+    functionName: "getProfile",
+    args: [profileAddress],
+  });
 
   async function refresh() {
     refetch();
@@ -104,13 +115,14 @@ export default function UserPage({ params }: { params: { network: string; user: 
       justify = "center";
     }
 
+    console.log(profileData);
     if (!output) {
       output = (
         <Profile
-          address={dummyUser.address}
-          name={dummyUser.name}
-          description={dummyUser.description}
-          image={dummyUser.image}
+          address={profileAddress}
+          name={profileData?.[0]}
+          description={profileData?.[1]}
+          image={profileData?.[2]}
         />
       );
     }

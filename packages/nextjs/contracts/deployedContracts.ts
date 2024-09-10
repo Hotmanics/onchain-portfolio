@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     PaymentVerifier: {
-      address: "0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0",
+      address: "0xa51c1fc2f0d1a1b8494ed1fe312d7c3a78ed91c0",
       abi: [
         {
           type: "constructor",
@@ -176,6 +176,95 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
+    },
+    DummyProfile: {
+      address: "0x0dcd1bf9a1b36ce34237eeafef220932846bcd82",
+      abi: [
+        {
+          type: "function",
+          name: "getProfile",
+          inputs: [
+            {
+              name: "who",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          outputs: [
+            {
+              name: "name",
+              type: "string",
+              internalType: "string",
+            },
+            {
+              name: "description",
+              type: "string",
+              internalType: "string",
+            },
+            {
+              name: "imageUrl",
+              type: "string",
+              internalType: "string",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "setDummyProfile",
+          inputs: [
+            {
+              name: "who",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "name",
+              type: "string",
+              internalType: "string",
+            },
+            {
+              name: "description",
+              type: "string",
+              internalType: "string",
+            },
+            {
+              name: "imageUrl",
+              type: "string",
+              internalType: "string",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "setProfile",
+          inputs: [
+            {
+              name: "name",
+              type: "string",
+              internalType: "string",
+            },
+            {
+              name: "description",
+              type: "string",
+              internalType: "string",
+            },
+            {
+              name: "imageUrl",
+              type: "string",
+              internalType: "string",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+      ],
+      inheritedFunctions: {
+        getProfile: "contracts/Profile.sol",
+        setProfile: "contracts/Profile.sol",
+      },
     },
   },
   11155111: {

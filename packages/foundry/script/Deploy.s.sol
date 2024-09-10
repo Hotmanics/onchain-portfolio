@@ -5,6 +5,8 @@ import {PaymentVerifier} from "../contracts/PaymentVerifier.sol";
 import "../contracts/YourContract.sol";
 import "../contracts/PaymentVerifier.sol";
 import "./DeployHelpers.s.sol";
+import {Profile} from "../contracts/Profile.sol";
+import {DummyProfile} from "../contracts/DummyProfile.sol";
 
 contract DeployScript is ScaffoldETHDeploy {
     error InvalidPrivateKey(string);
@@ -31,6 +33,20 @@ contract DeployScript is ScaffoldETHDeploy {
                 vm.toString(address(verifier))
             )
         );
+
+        if (getChain().chainId == 31337) {
+            DummyProfile profile = new DummyProfile();
+
+            profile.setDummyProfile(
+                0x42bcD9e66817734100b86A2bab62d9eF3B63E92A,
+                "Test",
+                "T",
+                ""
+            );
+        } else {
+            new Profile();
+        }
+
         vm.stopBroadcast();
 
         /**
