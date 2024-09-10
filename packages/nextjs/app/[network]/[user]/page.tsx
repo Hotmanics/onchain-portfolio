@@ -106,7 +106,6 @@ export default function UserPage({ params }: { params: { network: string; user: 
       justify = "center";
     }
 
-    console.log(profileData);
     if (!output) {
       output = (
         <Profile
