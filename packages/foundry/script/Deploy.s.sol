@@ -39,9 +39,9 @@ contract DeployScript is ScaffoldETHDeploy {
 
             profile.setDummyProfile(
                 0x42bcD9e66817734100b86A2bab62d9eF3B63E92A,
-                "Test",
-                "T",
-                ""
+                "Foundry Foundrson",
+                "An exceptional Foundr with a knack for finding what was found.",
+                "https://olive-capitalist-mule-825.mypinata.cloud/ipfs/Qmap7PvsxvwhenVtjNes3GyouYPXaguB3yVZNnKKRMjXHV"
             );
         } else {
             new Profile();

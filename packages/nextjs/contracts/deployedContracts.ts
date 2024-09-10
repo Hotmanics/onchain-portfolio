@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     PaymentVerifier: {
-      address: "0xa51c1fc2f0d1a1b8494ed1fe312d7c3a78ed91c0",
+      address: "0x68b1d87f95878fe05b998f19b66f4baba5de1aed",
       abi: [
         {
           type: "constructor",
@@ -178,7 +178,7 @@ const deployedContracts = {
       inheritedFunctions: {},
     },
     DummyProfile: {
-      address: "0x0dcd1bf9a1b36ce34237eeafef220932846bcd82",
+      address: "0x3aa5ebb10dc797cac828524e59a333d0a371443c",
       abi: [
         {
           type: "function",
