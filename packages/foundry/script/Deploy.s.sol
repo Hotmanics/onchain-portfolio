@@ -6,7 +6,6 @@ import "../contracts/YourContract.sol";
 import "../contracts/PaymentVerifier.sol";
 import "./DeployHelpers.s.sol";
 import {Profile} from "../contracts/Profile.sol";
-import {DummyProfile} from "../contracts/DummyProfile.sol";
 
 contract DeployScript is ScaffoldETHDeploy {
     error InvalidPrivateKey(string);
@@ -35,16 +34,15 @@ contract DeployScript is ScaffoldETHDeploy {
         );
 
         if (getChain().chainId == 31337) {
-            DummyProfile profile = new DummyProfile();
-
-            profile.setDummyProfile(
+            new Profile(
                 0x42bcD9e66817734100b86A2bab62d9eF3B63E92A,
                 "Foundry Foundrson",
                 "An exceptional Foundr with a knack for finding what was found.",
-                "https://olive-capitalist-mule-825.mypinata.cloud/ipfs/Qmap7PvsxvwhenVtjNes3GyouYPXaguB3yVZNnKKRMjXHV"
+                "https://olive-capitalist-mule-825.mypinata.cloud/ipfs/Qmap7PvsxvwhenVtjNes3GyouYPXaguB3yVZNnKKRMjXHV",
+                true
             );
         } else {
-            new Profile();
+            new Profile(address(0), "", "", "", false);
         }
 
         vm.stopBroadcast();

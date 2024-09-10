@@ -12,13 +12,29 @@ contract Profile {
     mapping(address => string) s_name;
     mapping(address => string) s_description;
     mapping(address => string) s_imageUrl;
-    mapping(address => bool) s_isUsingEns;
+    mapping(address => bool) s_isNotUsingEns;
 
     // PaymentVerifier s_paymentVerifier;
 
     // constructor(address paymentVerifier) {
     //     s_paymentVerifier = PaymentVerifier(paymentVerifier);
     // }
+
+    constructor(
+        address initWho,
+        string memory initName,
+        string memory initDescription,
+        string memory initImageUrl,
+        bool initIsNotUsingEns
+    ) {
+        _setProfile(
+            initWho,
+            initName,
+            initDescription,
+            initImageUrl,
+            initIsNotUsingEns
+        );
+    }
 
     function setProfile(
         string memory name,
@@ -29,11 +45,20 @@ contract Profile {
         // if (!s_paymentVerifier.getIsSubscriptionActive(msg.sender)) {
         //     revert InactiveAccount();
         // }
+        _setProfile(msg.sender, name, description, imageUrl, isUsingEns);
+    }
 
-        s_name[msg.sender] = name;
-        s_description[msg.sender] = description;
-        s_imageUrl[msg.sender] = imageUrl;
-        s_isUsingEns[msg.sender] = isUsingEns;
+    function _setProfile(
+        address who,
+        string memory name,
+        string memory description,
+        string memory imageUrl,
+        bool isNotUsingEns
+    ) internal {
+        s_name[who] = name;
+        s_description[who] = description;
+        s_imageUrl[who] = imageUrl;
+        s_isNotUsingEns[who] = isNotUsingEns;
     }
 
     function getProfile(
@@ -45,14 +70,14 @@ contract Profile {
             string memory name,
             string memory description,
             string memory imageUrl,
-            bool isUsingEns
+            bool isNotUsingEns
         )
     {
         return (
             s_name[who],
             s_description[who],
             s_imageUrl[who],
-            s_isUsingEns[who]
+            s_isNotUsingEns[who]
         );
     }
 }

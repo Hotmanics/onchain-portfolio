@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     PaymentVerifier: {
-      address: "0xa85233c63b9ee964add6f2cffe00fd84eb32338f",
+      address: "0x09635f643e140090a9a8dcd712ed6285858cebef",
       abi: [
         {
           type: "constructor",
@@ -177,9 +177,40 @@ const deployedContracts = {
       ],
       inheritedFunctions: {},
     },
-    DummyProfile: {
-      address: "0x4a679253410272dd5232b3ff7cf5dbb88f295319",
+    Profile: {
+      address: "0xc5a5c42992decbae36851359345fe25997f5c42d",
       abi: [
+        {
+          type: "constructor",
+          inputs: [
+            {
+              name: "initWho",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "initName",
+              type: "string",
+              internalType: "string",
+            },
+            {
+              name: "initDescription",
+              type: "string",
+              internalType: "string",
+            },
+            {
+              name: "initImageUrl",
+              type: "string",
+              internalType: "string",
+            },
+            {
+              name: "initIsNotUsingEns",
+              type: "bool",
+              internalType: "bool",
+            },
+          ],
+          stateMutability: "nonpayable",
+        },
         {
           type: "function",
           name: "getProfile",
@@ -207,40 +238,12 @@ const deployedContracts = {
               internalType: "string",
             },
             {
-              name: "isUsingEns",
+              name: "isNotUsingEns",
               type: "bool",
               internalType: "bool",
             },
           ],
           stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "setDummyProfile",
-          inputs: [
-            {
-              name: "who",
-              type: "address",
-              internalType: "address",
-            },
-            {
-              name: "name",
-              type: "string",
-              internalType: "string",
-            },
-            {
-              name: "description",
-              type: "string",
-              internalType: "string",
-            },
-            {
-              name: "imageUrl",
-              type: "string",
-              internalType: "string",
-            },
-          ],
-          outputs: [],
-          stateMutability: "nonpayable",
         },
         {
           type: "function",
@@ -271,15 +274,12 @@ const deployedContracts = {
           stateMutability: "nonpayable",
         },
       ],
-      inheritedFunctions: {
-        getProfile: "contracts/Profile.sol",
-        setProfile: "contracts/Profile.sol",
-      },
+      inheritedFunctions: {},
     },
   },
   11155111: {
     PaymentVerifier: {
-      address: "0xde5c180bb71f80d4acee8e5dd85ef1dc9e875de4",
+      address: "0x888c6e425f8f43e64ee453c59be92578ee49d0c6",
       abi: [
         {
           type: "constructor",
@@ -445,6 +445,105 @@ const deployedContracts = {
           type: "error",
           name: "NotOwner",
           inputs: [],
+        },
+      ],
+      inheritedFunctions: {},
+    },
+    Profile: {
+      address: "0x44279a43f14dd3c90a4c70922006a8e3f286dde0",
+      abi: [
+        {
+          type: "constructor",
+          inputs: [
+            {
+              name: "initWho",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "initName",
+              type: "string",
+              internalType: "string",
+            },
+            {
+              name: "initDescription",
+              type: "string",
+              internalType: "string",
+            },
+            {
+              name: "initImageUrl",
+              type: "string",
+              internalType: "string",
+            },
+            {
+              name: "initIsNotUsingEns",
+              type: "bool",
+              internalType: "bool",
+            },
+          ],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "getProfile",
+          inputs: [
+            {
+              name: "who",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          outputs: [
+            {
+              name: "name",
+              type: "string",
+              internalType: "string",
+            },
+            {
+              name: "description",
+              type: "string",
+              internalType: "string",
+            },
+            {
+              name: "imageUrl",
+              type: "string",
+              internalType: "string",
+            },
+            {
+              name: "isNotUsingEns",
+              type: "bool",
+              internalType: "bool",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "setProfile",
+          inputs: [
+            {
+              name: "name",
+              type: "string",
+              internalType: "string",
+            },
+            {
+              name: "description",
+              type: "string",
+              internalType: "string",
+            },
+            {
+              name: "imageUrl",
+              type: "string",
+              internalType: "string",
+            },
+            {
+              name: "isUsingEns",
+              type: "bool",
+              internalType: "bool",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
         },
       ],
       inheritedFunctions: {},

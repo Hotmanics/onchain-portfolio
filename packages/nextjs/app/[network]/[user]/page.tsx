@@ -49,7 +49,7 @@ export default function UserPage({ params }: { params: { network: string; user: 
     useComplexIsProfileSubscriptionActive(retrievedChain, profileAddress);
 
   const { data: profileData } = useScaffoldReadContract({
-    contractName: "DummyProfile",
+    contractName: "Profile",
     functionName: "getProfile",
     args: [profileAddress],
   });

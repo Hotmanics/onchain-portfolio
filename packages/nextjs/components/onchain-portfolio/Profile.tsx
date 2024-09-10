@@ -44,7 +44,7 @@ export const Profile = ({ address, name, description, image, isUsingEns }: Props
     setIsUsingEnsValue(isUsingEns);
   }, [isUsingEns]);
 
-  const { writeContractAsync: writeProfileAsync } = useScaffoldWriteContract("DummyProfile");
+  const { writeContractAsync: writeProfileAsync } = useScaffoldWriteContract("Profile");
 
   const [profileUpdated, setProfileUpdated] = useState(false);
 
