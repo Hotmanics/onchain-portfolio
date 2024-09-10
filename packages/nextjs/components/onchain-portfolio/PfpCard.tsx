@@ -6,9 +6,9 @@ import { Address } from "../scaffold-eth";
 // import { IconsLinks } from "./icons-links/IconLinks";
 
 type Props = {
-  name?: string;
-  description?: string;
-  image?: string;
+  name?: string | null;
+  description?: string | null;
+  image?: string | null;
   address?: string;
   size?: "sm" | "base" | "lg";
   // iconslinks?: any;

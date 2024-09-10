@@ -279,7 +279,7 @@ const deployedContracts = {
   },
   11155111: {
     PaymentVerifier: {
-      address: "0x888c6e425f8f43e64ee453c59be92578ee49d0c6",
+      address: "0x2001243d1dd08a37f8a75ebd71b0f05628be5558",
       abi: [
         {
           type: "constructor",
@@ -450,7 +450,7 @@ const deployedContracts = {
       inheritedFunctions: {},
     },
     Profile: {
-      address: "0x44279a43f14dd3c90a4c70922006a8e3f286dde0",
+      address: "0xd16def1cb24e2bd4be8baf7f30e363a2fb259277",
       abi: [
         {
           type: "constructor",

@@ -1,34 +1,44 @@
 import { useEffect, useState } from "react";
+import { useTargetNetwork } from "../scaffold-eth";
 import { createPublicClient, http, isAddress, zeroAddress } from "viem";
-import { mainnet } from "viem/chains";
 import { normalize } from "viem/ens";
 import { getAlchemyHttpUrl } from "~~/utils/scaffold-eth";
 
 export function useProfileAddress(resolvingString: string) {
   const [profileAddress, setProfileAddress] = useState<string>(zeroAddress);
 
-  // const [isValidEns, setIsValidEns] = useState<boolean>();
+  const [isValidEns, setIsValidEns] = useState<boolean>();
 
   const [isLoadingProfileAddress, setIsLoadingProfileAddress] = useState<boolean>(false);
+
+  const { targetNetwork } = useTargetNetwork();
 
   useEffect(() => {
     async function get() {
       setIsLoadingProfileAddress(true);
-      let userAddress;
+      setIsValidEns(false);
+
+      let userAddress: string = zeroAddress;
 
       if (isAddress(resolvingString)) {
         userAddress = resolvingString;
       } else {
-        const publicClient = createPublicClient({
-          chain: mainnet,
-          transport: http(getAlchemyHttpUrl(mainnet.id)),
-        });
+        if (targetNetwork.id !== 31337) {
+          const publicClient = createPublicClient({
+            chain: targetNetwork,
+            transport: http(getAlchemyHttpUrl(targetNetwork.id)),
+          });
 
-        const addr = await publicClient.getEnsAddress({
-          name: normalize(resolvingString),
-        });
+          const addr = await publicClient.getEnsAddress({
+            name: normalize(resolvingString),
+          });
 
-        userAddress = addr as string;
+          if (addr !== null) {
+            userAddress = addr as string;
+            setIsValidEns(true);
+          }
+        }
+
         // setIsValidEns(true);
       }
 
@@ -36,10 +46,11 @@ export function useProfileAddress(resolvingString: string) {
       setIsLoadingProfileAddress(false);
     }
     get();
-  }, [resolvingString]);
+  }, [resolvingString, targetNetwork.id]);
 
   return {
     profileAddress,
     isLoadingProfileAddress,
+    isValidEns,
   };
 }

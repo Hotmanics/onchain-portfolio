@@ -8,6 +8,7 @@ import { normalize } from "viem/ens";
 import { useEnsAvatar, useEnsName } from "wagmi";
 import { CheckCircleIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
 import { BlockieAvatar } from "~~/components/scaffold-eth";
+import { useTargetNetwork } from "~~/hooks/scaffold-eth";
 
 type AddressProps = {
   address?: AddressType;
@@ -41,20 +42,22 @@ export const Address = ({
   showAddress = true,
   showCopy = true,
 }: AddressProps) => {
+  const { targetNetwork } = useTargetNetwork();
+
   const [ensAvatar, setEnsAvatar] = useState<string | null>();
   const [addressCopied, setAddressCopied] = useState(false);
   const checkSumAddress = address ? getAddress(address) : undefined;
 
   const { data: fetchedEns } = useEnsName({
     address: checkSumAddress,
-    chainId: 1,
+    chainId: targetNetwork.id,
     query: {
       enabled: isAddress(checkSumAddress ?? ""),
     },
   });
   const { data: fetchedEnsAvatar } = useEnsAvatar({
     name: fetchedEns ? normalize(fetchedEns) : undefined,
-    chainId: 1,
+    chainId: targetNetwork.id,
     query: {
       enabled: Boolean(fetchedEns),
       gcTime: 30_000,

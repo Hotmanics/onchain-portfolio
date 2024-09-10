@@ -25,7 +25,7 @@ export const AddressRaw = ({ address, disableAddressLink, format, size = "base" 
 
   const { data: fetchedEns } = useEnsName({
     address: checkSumAddress,
-    chainId: 1,
+    chainId: targetNetwork.id,
     query: {
       enabled: isAddress(checkSumAddress ?? ""),
     },

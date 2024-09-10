@@ -8,18 +8,22 @@ import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 type Props = {
   address: string;
-  name?: string;
-  description?: string;
-  image?: string;
-  isUsingEns?: boolean;
+  name?: string | null;
+  description?: string | null;
+  image?: string | null;
+  isNotUsingEns?: boolean;
+  refetch?: any;
+  onCheckChange?: any;
 };
 
-export const Profile = ({ address, name, description, image, isUsingEns }: Props) => {
+export const Profile = ({ address, name, description, image, isNotUsingEns, refetch, onCheckChange }: Props) => {
   const account = useAccount();
 
   const [isEditingPage, setIsEditingPage] = useState(false);
 
-  const [isUsingEnsValue, setIsUsingEnsValue] = useState(false);
+  console.log(isNotUsingEns);
+
+  const [isNotUsingEnsValue, setIsNotUsingEnsValue] = useState(false);
   const [nameValue, setNameValue] = useState<string>(name || "");
   const [descriptionValue, setDescriptionValue] = useState<string>(description || "");
   const [imageUrlValue, setImageUrlValue] = useState<string>(image || "");
@@ -40,9 +44,9 @@ export const Profile = ({ address, name, description, image, isUsingEns }: Props
   }, [image]);
 
   useEffect(() => {
-    if (isUsingEns === undefined) return;
-    setIsUsingEnsValue(isUsingEns);
-  }, [isUsingEns]);
+    if (isNotUsingEns === undefined) return;
+    setIsNotUsingEnsValue(isNotUsingEns);
+  }, [isNotUsingEns]);
 
   const { writeContractAsync: writeProfileAsync } = useScaffoldWriteContract("Profile");
 
@@ -76,19 +80,22 @@ export const Profile = ({ address, name, description, image, isUsingEns }: Props
           <input
             type="checkbox"
             className="m-4"
-            checked={isUsingEnsValue}
+            checked={!isNotUsingEnsValue}
             onChange={async () => {
-              await writeProfileAsync({
-                functionName: "setProfile",
-                args: [nameValue, descriptionValue, imageUrlValue, !isUsingEnsValue],
-              });
+              if (onCheckChange) await onCheckChange(!isNotUsingEnsValue);
+
+              // await writeProfileAsync({
+              //   functionName: "setProfile",
+              //   args: [nameValue, descriptionValue, imageUrlValue, !isNotUsingEnsValue],
+              // });
               setProfileUpdated(true);
-              setIsUsingEnsValue(!isUsingEnsValue);
+              setIsNotUsingEnsValue(!isNotUsingEnsValue);
+              if (refetch) refetch();
             }}
           />
-          Is Using ENS?
+          Use ENS?
         </label>
-        {isUsingEnsValue ? (
+        {!isNotUsingEnsValue ? (
           <></>
         ) : (
           <div className="flex flex-col items-center bg-secondary rounded-xl p-4">
