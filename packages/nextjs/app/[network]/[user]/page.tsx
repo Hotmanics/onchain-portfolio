@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { zeroAddress } from "viem";
-import * as chains from "viem/chains";
 import { useAccount, useConfig } from "wagmi";
 import { readContract } from "wagmi/actions";
 import { GrowCard } from "~~/components/onchain-portfolio/GrowCard";
@@ -12,6 +11,7 @@ import { NoticeCard } from "~~/components/onchain-portfolio/NoticeCard";
 import { Profile } from "~~/components/onchain-portfolio/Profile";
 import { UnknownNetworkCard } from "~~/components/onchain-portfolio/UnknownNetworkCard";
 import deployedContracts from "~~/contracts/deployedContracts";
+import { useGetChainByValue } from "~~/hooks/onchain-portfolio/useGetChainByValue";
 import { useProfileAddress } from "~~/hooks/onchain-portfolio/useProfileAddress";
 import { useScaffoldContract } from "~~/hooks/scaffold-eth";
 import profilePicturePlaceholder from "~~/public/profile-icon-placeholder.gif";
@@ -47,41 +47,19 @@ export default function UserPage({ params }: { params: { network: string; user: 
 
   // const hasBoughtBefore = lastPaymentDate === BigInt(0) ? false : true;
 
-  const [pageChain, setPageChain] = useState<any>();
-
-  // const setAdditionalChains = useGlobalState(({ setAdditionalChains }) => setAdditionalChains);
-
-  const [isLoadingPageChain, setIsLoadingPageChain] = useState<boolean>(false);
-
-  useEffect(() => {
-    async function get() {
-      setIsLoadingPageChain(true);
-      const value = chains as any;
-      const chain2 = value[params.network];
-
-      setPageChain(chain2);
-      // setAdditionalChains([chain2]);
-      setIsLoadingPageChain(false);
-    }
-    get();
-  }, [
-    params.network,
-    //setAdditionalChains
-  ]);
-
-  // const additionalChains = useGlobalState(({ additionalChains }) => additionalChains);
+  const { retrievedChain, isLoading: isLoadingRetrievedChain } = useGetChainByValue(params.network);
 
   const { data: paymentVerifier, isLoading: isLoadingPaymentVerifier } = useScaffoldContract({
     contractName: "PaymentVerifier",
-    chain: pageChain,
+    chain: retrievedChain,
   });
 
   const chainWithAttr = useMemo(
     () => ({
-      ...pageChain,
-      ...NETWORKS_EXTRA_DATA[pageChain?.id],
+      ...retrievedChain,
+      ...NETWORKS_EXTRA_DATA[retrievedChain?.id],
     }),
-    [pageChain],
+    [retrievedChain],
   );
 
   const wagmiConfig = useConfig();
@@ -97,7 +75,7 @@ export default function UserPage({ params }: { params: { network: string; user: 
       let presentChainId;
 
       for (let i = 0; i < enabledChains.length; i++) {
-        if (enabledChains[i].id === pageChain?.id) {
+        if (enabledChains[i].id === retrievedChain?.id) {
           presentChainId = enabledChains[i].id;
           break;
         }
@@ -121,7 +99,7 @@ export default function UserPage({ params }: { params: { network: string; user: 
       setIsLoadingIsProfileSubscriptionActive(false);
     }
     get();
-  }, [wagmiConfig, wagmiConfig?.chains?.length, pageChain?.id, profileAddress]);
+  }, [wagmiConfig, wagmiConfig?.chains?.length, retrievedChain?.id, profileAddress]);
 
   // const { data: isProfileSubscriptionActive } = useScaffoldReadContract({
   //   contractName: "PaymentVerifier",
@@ -134,11 +112,14 @@ export default function UserPage({ params }: { params: { network: string; user: 
   let output;
 
   console.log(isLoadingPaymentVerifier);
-  console.log(isLoadingPageChain);
+  console.log(retrievedChain);
   console.log(isLoadingIsProfileSubscriptionActive);
 
   const isLoading =
-    isLoadingPaymentVerifier || isLoadingPageChain || isLoadingIsProfileSubscriptionActive || isLoadingProfileAddress;
+    isLoadingPaymentVerifier ||
+    isLoadingRetrievedChain ||
+    isLoadingIsProfileSubscriptionActive ||
+    isLoadingProfileAddress;
   console.log(isLoading);
 
   if (isLoading) {
@@ -151,7 +132,7 @@ export default function UserPage({ params }: { params: { network: string; user: 
       </>
     );
   } else {
-    if (pageChain === undefined) {
+    if (retrievedChain === undefined) {
       console.log("NOT PAGE CHAIN");
       output = (
         <NoticeCard>
@@ -174,7 +155,7 @@ export default function UserPage({ params }: { params: { network: string; user: 
           <InactiveSubscriptionCard
             connectedAddress={account?.address || ""}
             profileAddress={profileAddress}
-            network={pageChain}
+            network={retrievedChain}
           />
         </NoticeCard>
       );
