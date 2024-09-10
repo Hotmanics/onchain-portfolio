@@ -1,23 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { zeroAddress } from "viem";
-import { useAccount, useConfig } from "wagmi";
-import { readContract } from "wagmi/actions";
+import { useAccount } from "wagmi";
 import { GrowCard } from "~~/components/onchain-portfolio/GrowCard";
 import { InactiveSubscriptionCard } from "~~/components/onchain-portfolio/InactiveSubscriptionCard";
 import { NotSupportedNetworkCard } from "~~/components/onchain-portfolio/NotSupportedNetworkCard";
 import { NoticeCard } from "~~/components/onchain-portfolio/NoticeCard";
 import { Profile } from "~~/components/onchain-portfolio/Profile";
 import { UnknownNetworkCard } from "~~/components/onchain-portfolio/UnknownNetworkCard";
-import deployedContracts from "~~/contracts/deployedContracts";
+import { useComplexIsProfileSubscriptionActive } from "~~/hooks/onchain-portfolio/useComplexIsProfileSubscriptionActive";
 import { useGetChainByValue } from "~~/hooks/onchain-portfolio/useGetChainByValue";
 import { useProfileAddress } from "~~/hooks/onchain-portfolio/useProfileAddress";
 import { useScaffoldContract } from "~~/hooks/scaffold-eth";
 import profilePicturePlaceholder from "~~/public/profile-icon-placeholder.gif";
-import { enabledChains } from "~~/services/web3/wagmiConfig";
 import insertSpaces from "~~/utils/onchain-portfolio/textManipulation";
-import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const dummyUser = {
   address: zeroAddress,
@@ -27,12 +23,6 @@ const dummyUser = {
 };
 
 export default function UserPage({ params }: { params: { network: string; user: string } }) {
-  const { profileAddress, isLoadingProfileAddress } = useProfileAddress(params.user);
-
-  const account = useAccount();
-
-  const formattedNetwork = insertSpaces(params.network).replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
-
   //   const { data: paymentCadence } = useScaffoldReadContract({
   //     contractName: "PaymentVerifier",
   //     functionName: "getPaymentCadence",
@@ -46,6 +36,12 @@ export default function UserPage({ params }: { params: { network: string; user: 
 
   // const hasBoughtBefore = lastPaymentDate === BigInt(0) ? false : true;
 
+  const account = useAccount();
+
+  const { profileAddress, isLoadingProfileAddress } = useProfileAddress(params.user);
+
+  const formattedNetwork = insertSpaces(params.network).replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
+
   const { retrievedChain, isLoading: isLoadingRetrievedChain } = useGetChainByValue(params.network);
 
   const { data: paymentVerifier, isLoading: isLoadingPaymentVerifier } = useScaffoldContract({
@@ -53,65 +49,19 @@ export default function UserPage({ params }: { params: { network: string; user: 
     chain: retrievedChain,
   });
 
-  const wagmiConfig = useConfig();
-
-  const [isProfileSubscriptionActive, setIsProfileSubscriptionActive] = useState<boolean>();
-  const [isLoadingIsProfileSubscriptionActive, setIsLoadingIsProfileSubscriptionActive] = useState<boolean>(false);
-
-  useEffect(() => {
-    async function get() {
-      const contracts = deployedContracts as GenericContractsDeclaration | null;
-      if (contracts === null) return;
-
-      let presentChainId;
-
-      for (let i = 0; i < enabledChains.length; i++) {
-        if (enabledChains[i].id === retrievedChain?.id) {
-          presentChainId = enabledChains[i].id;
-          break;
-        }
-      }
-
-      if (presentChainId === undefined) return;
-
-      const contract = contracts[presentChainId].PaymentVerifier;
-
-      setIsLoadingIsProfileSubscriptionActive(true);
-
-      const result = await readContract(wagmiConfig, {
-        abi: contract.abi,
-        address: contract.address,
-        functionName: "getIsSubscriptionActive",
-        chainId: presentChainId,
-        args: [profileAddress],
-      });
-
-      setIsProfileSubscriptionActive(result as boolean);
-      setIsLoadingIsProfileSubscriptionActive(false);
-    }
-    get();
-  }, [wagmiConfig, wagmiConfig?.chains?.length, retrievedChain?.id, profileAddress]);
-
-  // const { data: isProfileSubscriptionActive } = useScaffoldReadContract({
-  //   contractName: "PaymentVerifier",
-  //   functionName: "getIsSubscriptionActive",
-  //   args: [profileAddress],
-  //   chain: chainWithAttr,
-  // });
+  const { isProfileSubscriptionActive, isLoadingIsProfileSubscriptionActive } = useComplexIsProfileSubscriptionActive(
+    retrievedChain,
+    profileAddress,
+  );
 
   let justify: "start" | "center" = "start";
   let output;
-
-  console.log(isLoadingPaymentVerifier);
-  console.log(retrievedChain);
-  console.log(isLoadingIsProfileSubscriptionActive);
 
   const isLoading =
     isLoadingPaymentVerifier ||
     isLoadingRetrievedChain ||
     isLoadingIsProfileSubscriptionActive ||
     isLoadingProfileAddress;
-  console.log(isLoading);
 
   if (isLoading) {
     justify = "center";
@@ -124,23 +74,18 @@ export default function UserPage({ params }: { params: { network: string; user: 
     );
   } else {
     if (retrievedChain === undefined) {
-      console.log("NOT PAGE CHAIN");
       output = (
         <NoticeCard>
           <UnknownNetworkCard chainName={params.network} />
         </NoticeCard>
       );
     } else if (paymentVerifier?.address === undefined) {
-      console.log("NOT PV");
-
       output = (
         <NoticeCard>
           <NotSupportedNetworkCard chain={retrievedChain} formattedNetwork={formattedNetwork} />
         </NoticeCard>
       );
     } else if (!isProfileSubscriptionActive) {
-      console.log("NOT ACTIVE");
-
       output = (
         <NoticeCard>
           <InactiveSubscriptionCard
