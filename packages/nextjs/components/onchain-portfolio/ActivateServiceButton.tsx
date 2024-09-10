@@ -6,9 +6,10 @@ import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaf
 type Props = {
   profileAddress: string;
   network?: Chain;
+  onClick?: any;
 };
 
-export const ActivateServiceButton = ({ profileAddress, network }: Props) => {
+export const ActivateServiceButton = ({ profileAddress, network, onClick }: Props) => {
   const { data: paymentFee } = useScaffoldReadContract({
     contractName: "PaymentVerifier",
     functionName: "getPaymentFee",
@@ -26,6 +27,8 @@ export const ActivateServiceButton = ({ profileAddress, network }: Props) => {
             args: [profileAddress],
             value: paymentFee,
           });
+
+          if (onClick) await onClick();
         }}
         className="btn btn-base-300 btn-lg"
       >

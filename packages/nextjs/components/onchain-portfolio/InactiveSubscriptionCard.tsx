@@ -8,9 +8,10 @@ type Props = {
   connectedAddress: string;
   profileAddress: string;
   network?: Chain;
+  onClick?: any;
 };
 
-export const InactiveSubscriptionCard = ({ connectedAddress, profileAddress, network }: Props) => {
+export const InactiveSubscriptionCard = ({ connectedAddress, profileAddress, network, onClick }: Props) => {
   return (
     <>
       <Address address={profileAddress} size="3xl" />
@@ -26,6 +27,7 @@ export const InactiveSubscriptionCard = ({ connectedAddress, profileAddress, net
         connectedAddress={connectedAddress || ""}
         profileAddress={profileAddress || ""}
         network={network}
+        onClick={onClick}
       />
     </>
   );

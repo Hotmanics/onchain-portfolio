@@ -7,9 +7,10 @@ type Props = {
   connectedAddress: string;
   profileAddress: string;
   network?: Chain;
+  onClick?: any;
 };
 
-export const ActivateServiceSection = ({ connectedAddress, profileAddress, network }: Props) => {
+export const ActivateServiceSection = ({ connectedAddress, profileAddress, network, onClick }: Props) => {
   return (
     <div className="flex flex-col items-center">
       {connectedAddress !== profileAddress ? (
@@ -20,7 +21,7 @@ export const ActivateServiceSection = ({ connectedAddress, profileAddress, netwo
       ) : (
         <></>
       )}
-      <ActivateServiceButton profileAddress={profileAddress} network={network} />
+      <ActivateServiceButton profileAddress={profileAddress} network={network} onClick={onClick} />
     </div>
   );
 };

@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     PaymentVerifier: {
-      address: "0x2279b7a0a67db372996a5fab50d91eaa73d2ebe6",
+      address: "0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0",
       abi: [
         {
           type: "constructor",
@@ -180,7 +180,7 @@ const deployedContracts = {
   },
   11155111: {
     PaymentVerifier: {
-      address: "0x96ed0cd4559bbaf6ca2e414f40c9d0fd31aaef97",
+      address: "0xde5c180bb71f80d4acee8e5dd85ef1dc9e875de4",
       abi: [
         {
           type: "constructor",

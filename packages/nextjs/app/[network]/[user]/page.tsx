@@ -12,13 +12,13 @@ import { useComplexIsProfileSubscriptionActive } from "~~/hooks/onchain-portfoli
 import { useGetChainByValue } from "~~/hooks/onchain-portfolio/useGetChainByValue";
 import { useProfileAddress } from "~~/hooks/onchain-portfolio/useProfileAddress";
 import { useScaffoldContract } from "~~/hooks/scaffold-eth";
-import profilePicturePlaceholder from "~~/public/profile-icon-placeholder.gif";
+import profilePicturePlaceholder from "~~/public/surprised-pikachu-placeholder.gif";
 import insertSpaces from "~~/utils/onchain-portfolio/textManipulation";
 
 const dummyUser = {
   address: zeroAddress,
-  name: "Jake Homanics",
-  description: "Onchain Developer focused on NFTs, DAOs, public goods, and open sourced tech.",
+  name: "Dummy Dumminson",
+  description: "A big dummy, making dummy steps one dum dum at a time.",
   image: profilePicturePlaceholder.src,
 };
 
@@ -49,10 +49,12 @@ export default function UserPage({ params }: { params: { network: string; user: 
     chain: retrievedChain,
   });
 
-  const { isProfileSubscriptionActive, isLoadingIsProfileSubscriptionActive } = useComplexIsProfileSubscriptionActive(
-    retrievedChain,
-    profileAddress,
-  );
+  const { isProfileSubscriptionActive, isLoadingIsProfileSubscriptionActive, refetch } =
+    useComplexIsProfileSubscriptionActive(retrievedChain, profileAddress);
+
+  async function refresh() {
+    refetch();
+  }
 
   let justify: "start" | "center" = "start";
   let output;
@@ -92,6 +94,7 @@ export default function UserPage({ params }: { params: { network: string; user: 
             connectedAddress={account?.address || ""}
             profileAddress={profileAddress}
             network={retrievedChain}
+            onClick={refresh}
           />
         </NoticeCard>
       );
@@ -104,7 +107,7 @@ export default function UserPage({ params }: { params: { network: string; user: 
     if (!output) {
       output = (
         <Profile
-          address={profileAddress}
+          address={dummyUser.address}
           name={dummyUser.name}
           description={dummyUser.description}
           image={dummyUser.image}
