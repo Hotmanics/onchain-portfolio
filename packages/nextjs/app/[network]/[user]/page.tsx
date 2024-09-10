@@ -17,7 +17,6 @@ import { UnknownNetworkCard } from "~~/components/onchain-portfolio/UnknownNetwo
 import deployedContracts from "~~/contracts/deployedContracts";
 import { useScaffoldContract } from "~~/hooks/scaffold-eth";
 import profilePicturePlaceholder from "~~/public/profile-icon-placeholder.gif";
-import { useGlobalState } from "~~/services/store/store";
 import { enabledChains } from "~~/services/web3/wagmiConfig";
 import insertSpaces from "~~/utils/onchain-portfolio/textManipulation";
 import { NETWORKS_EXTRA_DATA, getAlchemyHttpUrl } from "~~/utils/scaffold-eth";
@@ -35,8 +34,11 @@ export default function UserPage({ params }: { params: { network: string; user: 
 
   // const [isValidEns, setIsValidEns] = useState<boolean>();
 
+  const [isLoadingProfileAddress, setIsLoadingProfileAddress] = useState<boolean>(false);
+
   useEffect(() => {
     async function get() {
+      setIsLoadingProfileAddress(true);
       let userAddress;
 
       if (isAddress(params.user)) {
@@ -56,6 +58,7 @@ export default function UserPage({ params }: { params: { network: string; user: 
       }
 
       setProfileAddress(userAddress);
+      setIsLoadingProfileAddress(false);
     }
     get();
   }, [params.user]);
@@ -79,18 +82,25 @@ export default function UserPage({ params }: { params: { network: string; user: 
 
   const [pageChain, setPageChain] = useState<any>();
 
-  const setAdditionalChains = useGlobalState(({ setAdditionalChains }) => setAdditionalChains);
+  // const setAdditionalChains = useGlobalState(({ setAdditionalChains }) => setAdditionalChains);
+
+  const [isLoadingPageChain, setIsLoadingPageChain] = useState<boolean>(false);
 
   useEffect(() => {
     async function get() {
+      setIsLoadingPageChain(true);
       const value = chains as any;
       const chain2 = value[params.network];
 
       setPageChain(chain2);
-      setAdditionalChains([chain2]);
+      // setAdditionalChains([chain2]);
+      setIsLoadingPageChain(false);
     }
     get();
-  }, [params.network, setAdditionalChains]);
+  }, [
+    params.network,
+    //setAdditionalChains
+  ]);
 
   // const additionalChains = useGlobalState(({ additionalChains }) => additionalChains);
 
@@ -108,6 +118,9 @@ export default function UserPage({ params }: { params: { network: string; user: 
   );
 
   const wagmiConfig = useConfig();
+
+  const [isProfileSubscriptionActive, setIsProfileSubscriptionActive] = useState<boolean>();
+  const [isLoadingIsProfileSubscriptionActive, setIsLoadingIsProfileSubscriptionActive] = useState<boolean>(false);
 
   useEffect(() => {
     async function get() {
@@ -127,9 +140,7 @@ export default function UserPage({ params }: { params: { network: string; user: 
 
       const contract = contracts[presentChainId].PaymentVerifier;
 
-      console.log(presentChainId);
-
-      console.log(contract.address);
+      setIsLoadingIsProfileSubscriptionActive(true);
 
       const result = await readContract(wagmiConfig, {
         abi: contract.abi,
@@ -139,17 +150,11 @@ export default function UserPage({ params }: { params: { network: string; user: 
         args: [profileAddress],
       });
 
-      console.log(result);
       setIsProfileSubscriptionActive(result as boolean);
+      setIsLoadingIsProfileSubscriptionActive(false);
     }
     get();
   }, [wagmiConfig, wagmiConfig?.chains?.length, pageChain?.id, profileAddress]);
-
-  const [isProfileSubscriptionActive, setIsProfileSubscriptionActive] = useState<boolean>();
-
-  // if (!isPresent) {
-  //   console.log(paymentVerifier);
-  // }
 
   // const { data: isProfileSubscriptionActive } = useScaffoldReadContract({
   //   contractName: "PaymentVerifier",
@@ -158,17 +163,18 @@ export default function UserPage({ params }: { params: { network: string; user: 
   //   chain: chainWithAttr,
   // });
 
-  // console.log(isProfileSubscriptionActive);
-
-  // console.log(isProfileSubscriptionActive);
-
-  // console.log(pageChain);
-  // console.log(paymentVerifier);
-
   let justify: "start" | "center" = "start";
   let output;
 
-  if (isLoadingPaymentVerifier) {
+  console.log(isLoadingPaymentVerifier);
+  console.log(isLoadingPageChain);
+  console.log(isLoadingIsProfileSubscriptionActive);
+
+  const isLoading =
+    isLoadingPaymentVerifier || isLoadingPageChain || isLoadingIsProfileSubscriptionActive || isLoadingProfileAddress;
+  console.log(isLoading);
+
+  if (isLoading) {
     justify = "center";
     output = (
       <>
@@ -177,44 +183,50 @@ export default function UserPage({ params }: { params: { network: string; user: 
         <p className="text-center text-4xl">{"Buying more hamsters."}</p>
       </>
     );
-  }
-  if (pageChain === undefined) {
-    output = (
-      <NoticeCard>
-        <UnknownNetworkCard chainName={params.network} />
-      </NoticeCard>
-    );
-  } else if (paymentVerifier?.address === undefined) {
-    output = (
-      <NoticeCard>
-        <NotSupportedNetworkCard chain={chainWithAttr} formattedNetwork={formattedNetwork} />
-      </NoticeCard>
-    );
-  } else if (!isProfileSubscriptionActive) {
-    output = (
-      <NoticeCard>
-        <InactiveSubscriptionCard
-          connectedAddress={account?.address || ""}
-          profileAddress={profileAddress}
-          network={pageChain}
+  } else {
+    if (pageChain === undefined) {
+      console.log("NOT PAGE CHAIN");
+      output = (
+        <NoticeCard>
+          <UnknownNetworkCard chainName={params.network} />
+        </NoticeCard>
+      );
+    } else if (paymentVerifier?.address === undefined) {
+      console.log("NOT PV");
+
+      output = (
+        <NoticeCard>
+          <NotSupportedNetworkCard chain={chainWithAttr} formattedNetwork={formattedNetwork} />
+        </NoticeCard>
+      );
+    } else if (!isProfileSubscriptionActive) {
+      console.log("NOT ACTIVE");
+
+      output = (
+        <NoticeCard>
+          <InactiveSubscriptionCard
+            connectedAddress={account?.address || ""}
+            profileAddress={profileAddress}
+            network={pageChain}
+          />
+        </NoticeCard>
+      );
+    }
+
+    if (output) {
+      justify = "center";
+    }
+
+    if (!output) {
+      output = (
+        <Profile
+          address={profileAddress}
+          name={dummyUser.name}
+          description={dummyUser.description}
+          image={dummyUser.image}
         />
-      </NoticeCard>
-    );
-  }
-
-  if (output) {
-    justify = "center";
-  }
-
-  if (!output) {
-    output = (
-      <Profile
-        address={profileAddress}
-        name={dummyUser.name}
-        description={dummyUser.description}
-        image={dummyUser.image}
-      />
-    );
+      );
+    }
   }
 
   console.log("render check");
