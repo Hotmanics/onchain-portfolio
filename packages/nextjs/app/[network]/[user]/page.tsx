@@ -113,6 +113,7 @@ export default function UserPage({ params }: { params: { network: string; user: 
           name={profileData?.[0]}
           description={profileData?.[1]}
           image={profileData?.[2]}
+          isUsingEns={profileData?.[3]}
         />
       );
     }

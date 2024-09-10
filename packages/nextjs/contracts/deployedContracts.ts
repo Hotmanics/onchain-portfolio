@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     PaymentVerifier: {
-      address: "0x68b1d87f95878fe05b998f19b66f4baba5de1aed",
+      address: "0xa85233c63b9ee964add6f2cffe00fd84eb32338f",
       abi: [
         {
           type: "constructor",
@@ -178,7 +178,7 @@ const deployedContracts = {
       inheritedFunctions: {},
     },
     DummyProfile: {
-      address: "0x3aa5ebb10dc797cac828524e59a333d0a371443c",
+      address: "0x4a679253410272dd5232b3ff7cf5dbb88f295319",
       abi: [
         {
           type: "function",
@@ -205,6 +205,11 @@ const deployedContracts = {
               name: "imageUrl",
               type: "string",
               internalType: "string",
+            },
+            {
+              name: "isUsingEns",
+              type: "bool",
+              internalType: "bool",
             },
           ],
           stateMutability: "view",
@@ -255,6 +260,11 @@ const deployedContracts = {
               name: "imageUrl",
               type: "string",
               internalType: "string",
+            },
+            {
+              name: "isUsingEns",
+              type: "bool",
+              internalType: "bool",
             },
           ],
           outputs: [],

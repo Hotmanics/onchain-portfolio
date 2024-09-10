@@ -12,6 +12,7 @@ contract Profile {
     mapping(address => string) s_name;
     mapping(address => string) s_description;
     mapping(address => string) s_imageUrl;
+    mapping(address => bool) s_isUsingEns;
 
     // PaymentVerifier s_paymentVerifier;
 
@@ -22,7 +23,8 @@ contract Profile {
     function setProfile(
         string memory name,
         string memory description,
-        string memory imageUrl
+        string memory imageUrl,
+        bool isUsingEns
     ) external {
         // if (!s_paymentVerifier.getIsSubscriptionActive(msg.sender)) {
         //     revert InactiveAccount();
@@ -31,6 +33,7 @@ contract Profile {
         s_name[msg.sender] = name;
         s_description[msg.sender] = description;
         s_imageUrl[msg.sender] = imageUrl;
+        s_isUsingEns[msg.sender] = isUsingEns;
     }
 
     function getProfile(
@@ -41,9 +44,15 @@ contract Profile {
         returns (
             string memory name,
             string memory description,
-            string memory imageUrl
+            string memory imageUrl,
+            bool isUsingEns
         )
     {
-        return (s_name[who], s_description[who], s_imageUrl[who]);
+        return (
+            s_name[who],
+            s_description[who],
+            s_imageUrl[who],
+            s_isUsingEns[who]
+        );
     }
 }

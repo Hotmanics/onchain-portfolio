@@ -11,13 +11,15 @@ type Props = {
   name?: string;
   description?: string;
   image?: string;
+  isUsingEns?: boolean;
 };
 
-export const Profile = ({ address, name, description, image }: Props) => {
+export const Profile = ({ address, name, description, image, isUsingEns }: Props) => {
   const account = useAccount();
 
   const [isEditingPage, setIsEditingPage] = useState(false);
 
+  const [isUsingEnsValue, setIsUsingEnsValue] = useState(false);
   const [nameValue, setNameValue] = useState<string>(name || "");
   const [descriptionValue, setDescriptionValue] = useState<string>(description || "");
   const [imageUrlValue, setImageUrlValue] = useState<string>(image || "");
@@ -37,7 +39,10 @@ export const Profile = ({ address, name, description, image }: Props) => {
     setImageUrlValue(image);
   }, [image]);
 
-  console.log(nameValue);
+  useEffect(() => {
+    if (isUsingEns === undefined) return;
+    setIsUsingEnsValue(isUsingEns);
+  }, [isUsingEns]);
 
   const { writeContractAsync: writeProfileAsync } = useScaffoldWriteContract("DummyProfile");
 
@@ -67,55 +72,75 @@ export const Profile = ({ address, name, description, image }: Props) => {
       <div className="flex flex-col items-center space-y-4">
         {profileUpdated ? <p>Profile Succesfully updated!</p> : <></>}
 
-        <div className="flex flex-col items-center bg-secondary rounded-xl p-4">
-          <p>Profile</p>
-          <div className="flex flex-col gap-1.5 w-[400px]">
-            <div className="flex items-center ml-2">
-              <span className="text-xs font-medium mr-2 leading-none">Name</span>
-            </div>
-            <InputBase
-              value={nameValue}
-              onChange={updatedValue => {
-                setNameValue(updatedValue);
-              }}
-              placeholder="Tony"
-            />
-            <div className="flex items-center ml-2">
-              <span className="text-xs font-medium mr-2 leading-none">Description</span>
-            </div>
-            <InputBase
-              value={descriptionValue}
-              onChange={updatedValue => {
-                setDescriptionValue(updatedValue);
-              }}
-              placeholder="This is a long description."
-            />
+        <label>
+          <input
+            type="checkbox"
+            className="m-4"
+            checked={isUsingEnsValue}
+            onChange={async () => {
+              await writeProfileAsync({
+                functionName: "setProfile",
+                args: [nameValue, descriptionValue, imageUrlValue, !isUsingEnsValue],
+              });
+              setProfileUpdated(true);
+              setIsUsingEnsValue(!isUsingEnsValue);
+            }}
+          />
+          Is Using ENS?
+        </label>
+        {isUsingEnsValue ? (
+          <></>
+        ) : (
+          <div className="flex flex-col items-center bg-secondary rounded-xl p-4">
+            <p>Profile</p>
+            <div className="flex flex-col gap-1.5 w-[400px]">
+              <div className="flex items-center ml-2">
+                <span className="text-xs font-medium mr-2 leading-none">Name</span>
+              </div>
+              <InputBase
+                value={nameValue}
+                onChange={updatedValue => {
+                  setNameValue(updatedValue);
+                }}
+                placeholder="Tony"
+              />
+              <div className="flex items-center ml-2">
+                <span className="text-xs font-medium mr-2 leading-none">Description</span>
+              </div>
+              <InputBase
+                value={descriptionValue}
+                onChange={updatedValue => {
+                  setDescriptionValue(updatedValue);
+                }}
+                placeholder="This is a long description."
+              />
 
-            <div className="flex items-center ml-2">
-              <span className="text-xs font-medium mr-2 leading-none">Image URL</span>
-            </div>
-            <InputBase
-              value={imageUrlValue}
-              onChange={updatedValue => {
-                setImageUrlValue(updatedValue);
-              }}
-              placeholder="ipfs://Qm12eqwkjn12"
-            />
+              <div className="flex items-center ml-2">
+                <span className="text-xs font-medium mr-2 leading-none">Image URL</span>
+              </div>
+              <InputBase
+                value={imageUrlValue}
+                onChange={updatedValue => {
+                  setImageUrlValue(updatedValue);
+                }}
+                placeholder="ipfs://Qm12eqwkjn12"
+              />
 
-            <button
-              className="btn btn-primary"
-              onClick={async () => {
-                await writeProfileAsync({
-                  functionName: "setProfile",
-                  args: [nameValue, descriptionValue, imageUrlValue],
-                });
-                setProfileUpdated(true);
-              }}
-            >
-              Save Changes
-            </button>
+              <button
+                className="btn btn-primary"
+                onClick={async () => {
+                  await writeProfileAsync({
+                    functionName: "setProfile",
+                    args: [nameValue, descriptionValue, imageUrlValue, false],
+                  });
+                  setProfileUpdated(true);
+                }}
+              >
+                Save Changes
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="bg-secondary rounded-xl p-1">
           <button
