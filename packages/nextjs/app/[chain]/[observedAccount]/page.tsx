@@ -40,17 +40,6 @@ import { NETWORKS_EXTRA_DATA, getAlchemyHttpUrl } from "~~/utils/scaffold-eth";
 const spoofChain = { ...sepolia, ...NETWORKS_EXTRA_DATA[sepolia.id] };
 
 export default function UserPage({ params }: { params: { chain: string; observedAccount: string } }) {
-  // const { spoofChainRaw: spoofChain } = useMemo(
-  //   () => ({
-  //     spoofChainRaw: {
-  //       ...spoofChainRaw,
-  //       ...NETWORKS_EXTRA_DATA[spoofChainRaw.id],
-  //     },
-  //   }),
-  //   [spoofChainRaw],
-  // );
-
-  console.log(spoofChain);
   const spoofedNetworkColor = useNetworkColor(spoofChain);
 
   //   const { data: paymentCadence } = useScaffoldReadContract({
@@ -76,15 +65,14 @@ export default function UserPage({ params }: { params: { chain: string; observed
 
   const account = useAccount();
 
-  const [finalizedObservedAddress, setFinalizedObservedAddress] = useState<string>();
-  // const [finalizedEnsProfileAccount, setFinalizedEnsProfileAccount] = useState<string | null>();
+  const [authenticAddress, setAuthenticAddress] = useState<string>();
 
   useEffect(() => {
     async function get() {
       //if page observed account IS an address
       if (isAddress(params.observedAccount)) {
         //then set finalized observed account
-        setFinalizedObservedAddress(params.observedAccount);
+        setAuthenticAddress(params.observedAccount);
       }
       //else page observed account IS NOT an address
       else {
@@ -102,13 +90,10 @@ export default function UserPage({ params }: { params: { chain: string; observed
 
           console.log(resolvedAddr);
 
-          if (resolvedAddr !== null) setFinalizedObservedAddress(resolvedAddr);
-
-          // setFinalizedEnsProfileAccount(resolvedAddr);
-        }
-
-        //if site user wallet is not connected
-        if (account?.address === undefined) {
+          //if site user wallet is not connected
+          if (account?.address === undefined) {
+            if (resolvedAddr !== null) setAuthenticAddress(resolvedAddr);
+          }
         }
       }
     }
@@ -140,7 +125,7 @@ export default function UserPage({ params }: { params: { chain: string; observed
 
   const networkColor = useNetworkColor(retrievedChainFromUrl);
 
-  console.log(finalizedObservedAddress);
+  console.log(authenticAddress);
 
   return (
     <div className="flex flex-col flex-grow bg-primary">
@@ -152,7 +137,7 @@ export default function UserPage({ params }: { params: { chain: string; observed
         This page is spoofing some data from the <span style={{ color: spoofedNetworkColor }}>{spoofChain.name}</span>{" "}
         network.
       </p>
-      <Address address={finalizedObservedAddress} chain={spoofChain} />
+      <Address address={authenticAddress} chain={spoofChain} />
     </div>
   );
 
