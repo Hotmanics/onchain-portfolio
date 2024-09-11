@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useTargetNetwork } from "./useTargetNetwork";
 import { useTheme } from "next-themes";
 import { ChainWithAttributes } from "~~/utils/scaffold-eth";
@@ -12,11 +13,21 @@ export function getNetworkColor(network: ChainWithAttributes, isDarkMode: boolea
 /**
  * Gets the color of the target network
  */
-export const useNetworkColor = (chain?: ChainWithAttributes) => {
+export const useNetworkColor = (network?: ChainWithAttributes, theme?: string | undefined) => {
   const { resolvedTheme } = useTheme();
   const { targetNetwork } = useTargetNetwork();
 
-  const isDarkMode = resolvedTheme === "dark";
+  const selectedNetwork = network ?? targetNetwork;
+  const selectedTheme = theme ?? resolvedTheme;
 
-  return getNetworkColor(chain ? chain : targetNetwork, isDarkMode);
+  const [resolvedColor, setResolvedColor] = useState<string>();
+
+  useEffect(() => {
+    if (selectedNetwork === undefined) return;
+
+    const isDarkMode = selectedTheme === "dark";
+    setResolvedColor(getNetworkColor(selectedNetwork, isDarkMode));
+  }, [selectedNetwork, selectedNetwork?.id, selectedTheme]);
+
+  return resolvedColor;
 };

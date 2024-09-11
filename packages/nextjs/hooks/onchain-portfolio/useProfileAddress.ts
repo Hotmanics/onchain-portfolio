@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useTargetNetwork } from "../scaffold-eth";
-import { createPublicClient, http, isAddress, zeroAddress } from "viem";
+import { Chain, createPublicClient, http, isAddress, zeroAddress } from "viem";
+import { sepolia } from "viem/chains";
 import { normalize } from "viem/ens";
 import { getAlchemyHttpUrl } from "~~/utils/scaffold-eth";
 
-export function useProfileAddress(resolvingString: string) {
+export function useProfileAddress(resolvingString: string, network?: Chain) {
   const [profileAddress, setProfileAddress] = useState<string>(zeroAddress);
 
   const [isValidEns, setIsValidEns] = useState<boolean>();
@@ -13,8 +14,16 @@ export function useProfileAddress(resolvingString: string) {
 
   const { targetNetwork } = useTargetNetwork();
 
+  const [selectedNetwork, setSelectedNetwork] = useState<Chain>();
+
+  useEffect(() => {
+    setSelectedNetwork(network ?? targetNetwork);
+  }, [targetNetwork?.id, network?.id]);
+
   useEffect(() => {
     async function get() {
+      if (!selectedNetwork) return;
+
       setIsLoadingProfileAddress(true);
       setIsValidEns(false);
 
@@ -23,22 +32,25 @@ export function useProfileAddress(resolvingString: string) {
       if (isAddress(resolvingString)) {
         userAddress = resolvingString;
       } else {
-        if (targetNetwork.id !== 31337) {
-          const publicClient = createPublicClient({
-            chain: targetNetwork,
-            transport: http(getAlchemyHttpUrl(targetNetwork.id)),
-          });
+        const publicClient =
+          selectedNetwork.id === 31337
+            ? createPublicClient({
+                chain: sepolia,
+                transport: http(getAlchemyHttpUrl(sepolia.id)),
+              })
+            : createPublicClient({
+                chain: selectedNetwork,
+                transport: http(getAlchemyHttpUrl(selectedNetwork.id)),
+              });
 
-          const addr = await publicClient.getEnsAddress({
-            name: normalize(resolvingString),
-          });
+        const addr = await publicClient.getEnsAddress({
+          name: normalize(resolvingString),
+        });
 
-          if (addr !== null) {
-            userAddress = addr as string;
-            setIsValidEns(true);
-          }
+        if (addr !== null) {
+          userAddress = addr as string;
+          setIsValidEns(true);
         }
-
         // setIsValidEns(true);
       }
 
@@ -46,11 +58,12 @@ export function useProfileAddress(resolvingString: string) {
       setIsLoadingProfileAddress(false);
     }
     get();
-  }, [resolvingString, targetNetwork.id]);
+  }, [resolvingString, selectedNetwork?.id]);
 
   return {
     profileAddress,
     isLoadingProfileAddress,
     isValidEns,
+    selectedNetwork,
   };
 }

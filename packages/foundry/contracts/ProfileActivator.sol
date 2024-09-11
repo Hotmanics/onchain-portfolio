@@ -31,21 +31,18 @@ contract ProfileActivator is AccessControl {
         s_profile = Profile(profile);
     }
 
-    function activateAndSetProfile(
-        string memory name,
-        string memory description,
-        string memory imageUrl,
-        bool isShowingOnchain,
-        bool isShowingEns
-    ) external payable {
-        s_paymentVerifier.payFee{value: msg.value}(msg.sender);
-        s_profile.setProfile(
-            msg.sender,
-            name,
-            description,
-            imageUrl,
-            isShowingOnchain,
-            isShowingEns
-        );
+    function activateAndSetProfile(address who) external payable {
+        if (s_paymentVerifier.getLastPaymentDate(who) == 0) {
+            s_profile.setProfile(
+                who,
+                "Foundry Foundrson2",
+                "An exceptional Foundr with a knack for finding what was found.",
+                "https://olive-capitalist-mule-825.mypinata.cloud/ipfs/Qmap7PvsxvwhenVtjNes3GyouYPXaguB3yVZNnKKRMjXHV",
+                true,
+                false
+            );
+        }
+
+        s_paymentVerifier.payFee{value: msg.value}(who);
     }
 }

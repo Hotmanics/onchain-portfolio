@@ -16,9 +16,8 @@ contract Profile is AccessControl {
     mapping(address => bool) s_isShowingEns;
 
     constructor(
-        address[] memory authorizedEntities // address initWho, // string memory initName,
-    ) // string memory initDescription,
-    // string memory initImageUrl,
+        address[] memory authorizedEntities // address initWho, // string memory initName, // string memory initDescription,
+    ) // string memory initImageUrl,
     // bool isShowingOnchain,
     // bool isShowingEns
     {
@@ -60,7 +59,7 @@ contract Profile is AccessControl {
         );
     }
 
-    function setProfile(
+    function setProfile2(
         string memory name,
         string memory description,
         string memory imageUrl,

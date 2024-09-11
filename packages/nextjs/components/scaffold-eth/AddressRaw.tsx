@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Address as AddressType, getAddress, isAddress } from "viem";
+import { Address as AddressType, Chain, getAddress, isAddress } from "viem";
 import { hardhat } from "viem/chains";
 import { useEnsName } from "wagmi";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
@@ -10,6 +10,7 @@ import { getBlockExplorerAddressLink } from "~~/utils/scaffold-eth";
 
 type AddressProps = {
   address?: AddressType;
+  chain?: Chain;
   disableAddressLink?: boolean;
   format?: "short" | "long";
   size?: "xs" | "sm" | "base" | "lg" | "xl" | "2xl" | "3xl" | "4xl";
@@ -17,15 +18,15 @@ type AddressProps = {
 /**
  * Displays an address (or ENS) with a Blockie image and option to copy address.
  */
-export const AddressRaw = ({ address, disableAddressLink, format, size = "base" }: AddressProps) => {
+export const AddressRaw = ({ address, chain, disableAddressLink, format, size = "base" }: AddressProps) => {
   const [ens, setEns] = useState<string | null>();
   const checkSumAddress = address ? getAddress(address) : undefined;
 
   const { targetNetwork } = useTargetNetwork();
-
+  const selectedNetwork = chain ?? targetNetwork;
   const { data: fetchedEns } = useEnsName({
     address: checkSumAddress,
-    chainId: targetNetwork.id,
+    chainId: selectedNetwork.id,
     query: {
       enabled: isAddress(checkSumAddress ?? ""),
     },
@@ -52,7 +53,7 @@ export const AddressRaw = ({ address, disableAddressLink, format, size = "base" 
     return <span className="text-error">Wrong address</span>;
   }
 
-  const blockExplorerAddressLink = getBlockExplorerAddressLink(targetNetwork, checkSumAddress);
+  const blockExplorerAddressLink = getBlockExplorerAddressLink(selectedNetwork, checkSumAddress);
   let displayAddress = checkSumAddress?.slice(0, 6) + "..." + checkSumAddress?.slice(-4);
 
   if (ens) {
@@ -65,7 +66,7 @@ export const AddressRaw = ({ address, disableAddressLink, format, size = "base" 
     <>
       {disableAddressLink ? (
         <span className={`text-${size} font-normal`}>{displayAddress}</span>
-      ) : targetNetwork.id === hardhat.id ? (
+      ) : selectedNetwork.id === hardhat.id ? (
         <span className={`text-${size} font-normal hover:underline`}>
           <Link href={blockExplorerAddressLink}>{displayAddress}</Link>
         </span>

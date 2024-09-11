@@ -24,7 +24,7 @@ contract DeployScript is ScaffoldETHDeploy {
 
         PaymentVerifier verifier = new PaymentVerifier(
             address(0),
-            .1 ether,
+            .01 ether,
             address(0),
             30 days
         );
@@ -50,16 +50,19 @@ contract DeployScript is ScaffoldETHDeploy {
 
             profile = new Profile(admins);
 
-            profile.setProfile(
-                0x42bcD9e66817734100b86A2bab62d9eF3B63E92A,
-                "Foundry Foundrson",
-                "An exceptional Foundr with a knack for finding what was found.",
-                "https://olive-capitalist-mule-825.mypinata.cloud/ipfs/Qmap7PvsxvwhenVtjNes3GyouYPXaguB3yVZNnKKRMjXHV",
-                true,
-                false
-            );
+            // profile.setProfile(
+            //     0x42bcD9e66817734100b86A2bab62d9eF3B63E92A,
+            //     "Foundry Foundrson",
+            //     "An exceptional Foundr with a knack for finding what was found.",
+            //     "https://olive-capitalist-mule-825.mypinata.cloud/ipfs/Qmap7PvsxvwhenVtjNes3GyouYPXaguB3yVZNnKKRMjXHV",
+            //     true,
+            //     false
+            // );
         } else {
-            profile = new Profile(new address[](0));
+            address[] memory admins = new address[](1);
+            admins[0] = address(activator);
+
+            profile = new Profile(admins);
         }
 
         activator.setProfile(address(profile));

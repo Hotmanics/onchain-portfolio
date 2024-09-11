@@ -4,27 +4,35 @@ import { useEffect, useState } from "react";
 import { InputBase } from "../scaffold-eth";
 import { PfpCard } from "./PfpCard";
 import { useAccount } from "wagmi";
-
-// import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 type Props = {
   address: string;
   name?: string | null;
   description?: string | null;
   image?: string | null;
-  isNotUsingEns?: boolean;
+  isUsingProfile?: boolean;
+  isUsingEns?: boolean;
   refetch?: any;
   onCheckChange?: any;
 };
 
-export const Profile = ({ address, name, description, image, isNotUsingEns, refetch, onCheckChange }: Props) => {
+export const Profile = ({
+  address,
+  name,
+  description,
+  image,
+  isUsingProfile,
+  isUsingEns,
+  refetch,
+  onCheckChange,
+}: Props) => {
   const account = useAccount();
 
   const [isEditingPage, setIsEditingPage] = useState(false);
 
-  console.log(isNotUsingEns);
-
-  const [isNotUsingEnsValue, setIsNotUsingEnsValue] = useState(false);
+  const [isUsingProfileValue, setIsUsingProfileValue] = useState(false);
+  const [isUsingEnsValue, setIsUsingEnsValue] = useState(false);
   const [nameValue, setNameValue] = useState<string>(name || "");
   const [descriptionValue, setDescriptionValue] = useState<string>(description || "");
   const [imageUrlValue, setImageUrlValue] = useState<string>(image || "");
@@ -45,11 +53,16 @@ export const Profile = ({ address, name, description, image, isNotUsingEns, refe
   }, [image]);
 
   useEffect(() => {
-    if (isNotUsingEns === undefined) return;
-    setIsNotUsingEnsValue(isNotUsingEns);
-  }, [isNotUsingEns]);
+    if (isUsingProfile === undefined) return;
+    setIsUsingProfileValue(isUsingProfile);
+  }, [isUsingProfile]);
 
-  // const { writeContractAsync: writeProfileAsync } = useScaffoldWriteContract("Profile");
+  useEffect(() => {
+    if (isUsingEns === undefined) return;
+    setIsUsingEnsValue(isUsingEns);
+  }, [isUsingEns]);
+
+  const { writeContractAsync: writeProfileAsync } = useScaffoldWriteContract("Profile");
 
   const [profileUpdated, setProfileUpdated] = useState(false);
 
@@ -81,22 +94,23 @@ export const Profile = ({ address, name, description, image, isNotUsingEns, refe
           <input
             type="checkbox"
             className="m-4"
-            checked={!isNotUsingEnsValue}
+            checked={isUsingEnsValue}
             onChange={async () => {
-              if (onCheckChange) await onCheckChange(!isNotUsingEnsValue);
+              if (onCheckChange) await onCheckChange(!isUsingEnsValue);
 
-              // await writeProfileAsync({
-              //   functionName: "setProfile",
-              //   args: [nameValue, descriptionValue, imageUrlValue, !isNotUsingEnsValue],
-              // });
+              await writeProfileAsync({
+                functionName: "setProfile2",
+                args: [nameValue, descriptionValue, imageUrlValue, !isUsingProfile, !isUsingEnsValue],
+              });
               setProfileUpdated(true);
-              setIsNotUsingEnsValue(!isNotUsingEnsValue);
+              setIsUsingEnsValue(!isUsingEnsValue);
+              setIsUsingProfileValue(!isUsingProfileValue);
               if (refetch) refetch();
             }}
           />
           Use ENS?
         </label>
-        {!isNotUsingEnsValue ? (
+        {isUsingEnsValue ? (
           <></>
         ) : (
           <div className="flex flex-col items-center bg-secondary rounded-xl p-4">

@@ -15,18 +15,26 @@ export const ActivateServiceButton = ({ profileAddress, network, onClick }: Prop
     functionName: "getPaymentFee",
   });
 
-  const { writeContractAsync: writePaymentVerifierAsync } = useScaffoldWriteContract("PaymentVerifier", network);
+  // const { writeContractAsync: writePaymentVerifierAsync } = useScaffoldWriteContract("PaymentVerifier", network);
+  const { writeContractAsync: writeProfileActivatorAsync } = useScaffoldWriteContract("ProfileActivator", network);
 
   return (
     <div className="flex flex-col items-center m-4">
       <p className="m-0">{`Cost: ${formatEther(paymentFee || BigInt(0))} ether`}</p>
       <button
         onClick={async () => {
-          await writePaymentVerifierAsync({
-            functionName: "payFee",
-            args: [profileAddress],
+          console.log(profileAddress);
+          await writeProfileActivatorAsync({
+            functionName: "activateAndSetProfile",
             value: paymentFee,
+            args: [profileAddress],
           });
+
+          // await writePaymentVerifierAsync({
+          //   functionName: "payFee",
+          //   args: [profileAddress],
+          //   value: paymentFee,
+          // });
 
           if (onClick) await onClick();
         }}
