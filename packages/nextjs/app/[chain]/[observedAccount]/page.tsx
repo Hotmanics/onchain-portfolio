@@ -6,7 +6,7 @@ import {
 } from "react";
 // import { useTheme } from "next-themes";
 import {
-  //Chain,
+  PublicClient, //Chain,
   createPublicClient,
   http,
   isAddress,
@@ -14,9 +14,7 @@ import {
 import { foundry, sepolia } from "viem/chains";
 import { normalize } from "viem/ens";
 // import { useEffect } from "react";
-import {
-  useAccount, //, useEnsAddress
-} from "wagmi";
+import { useAccount } from "wagmi";
 // import { GrowCard } from "~~/components/onchain-portfolio/GrowCard";
 // import { InactiveSubscriptionCard } from "~~/components/onchain-portfolio/InactiveSubscriptionCard";
 // import { NotSupportedNetworkCard } from "~~/components/onchain-portfolio/NotSupportedNetworkCard";
@@ -66,6 +64,53 @@ export default function UserPage({ params }: { params: { chain: string; observed
   const account = useAccount();
 
   const [authenticAddress, setAuthenticAddress] = useState<string>();
+
+  const [ensPublicClient, setEnsPublicClient] = useState<PublicClient>();
+
+  useEffect(() => {
+    async function get() {
+      if (!isAddress(params.observedAccount)) {
+        //If param chain IS Foundry
+        if (retrievedChainFromUrl?.id === foundry.id) {
+          //THEN spoof sepolia ens profile
+          setEnsPublicClient(
+            createPublicClient({
+              chain: spoofChain,
+              transport: http(getAlchemyHttpUrl(spoofChain.id)),
+            }),
+          );
+        }
+        //If param chain IS NOT Foundry
+        else {
+          //THEN load param observedAccount ens profile
+        }
+      }
+    }
+    get();
+  }, []);
+
+  const [ensAddress, setEnsAddress] = useState<string>();
+  console.log(ensAddress);
+
+  useEffect(() => {
+    async function get() {
+      if (ensPublicClient === undefined) return;
+
+      if (isAddress(params.observedAccount)) {
+        setEnsAddress(params.observedAccount);
+      } else {
+        const resolvedAddr = await ensPublicClient.getEnsAddress({
+          name: normalize(params.observedAccount),
+        });
+
+        //if site user wallet is not connected
+        if (account?.address === undefined) {
+          if (resolvedAddr !== null) setEnsAddress(resolvedAddr);
+        }
+      }
+    }
+    get();
+  }, [ensPublicClient?.chain?.id, params.observedAccount]);
 
   useEffect(() => {
     async function get() {
