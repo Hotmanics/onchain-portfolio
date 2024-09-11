@@ -6,6 +6,7 @@ import "../contracts/YourContract.sol";
 import "../contracts/PaymentVerifier.sol";
 import "./DeployHelpers.s.sol";
 import {Profile} from "../contracts/Profile.sol";
+import {ProfileActivator} from "../contracts/ProfileActivator.sol";
 
 contract DeployScript is ScaffoldETHDeploy {
     error InvalidPrivateKey(string);
@@ -18,6 +19,8 @@ contract DeployScript is ScaffoldETHDeploy {
             );
         }
         vm.startBroadcast(deployerPrivateKey);
+
+        address publicKey = vm.createWallet(deployerPrivateKey).addr;
 
         PaymentVerifier verifier = new PaymentVerifier(
             address(0),
@@ -33,17 +36,34 @@ contract DeployScript is ScaffoldETHDeploy {
             )
         );
 
+        address[] memory activatorAdmins = new address[](1);
+        activatorAdmins[0] = publicKey;
+
+        ProfileActivator activator = new ProfileActivator(activatorAdmins);
+
+        Profile profile;
+
         if (getChain().chainId == 31337) {
-            new Profile(
+            address[] memory admins = new address[](2);
+            admins[0] = publicKey;
+            admins[1] = address(activator);
+
+            profile = new Profile(admins);
+
+            profile.setProfile(
                 0x42bcD9e66817734100b86A2bab62d9eF3B63E92A,
                 "Foundry Foundrson",
                 "An exceptional Foundr with a knack for finding what was found.",
                 "https://olive-capitalist-mule-825.mypinata.cloud/ipfs/Qmap7PvsxvwhenVtjNes3GyouYPXaguB3yVZNnKKRMjXHV",
-                true
+                true,
+                false
             );
         } else {
-            new Profile(address(0), "", "", "", false);
+            profile = new Profile(new address[](0));
         }
+
+        activator.setProfile(address(profile));
+        activator.setPaymentVerifier(address(verifier));
 
         vm.stopBroadcast();
 

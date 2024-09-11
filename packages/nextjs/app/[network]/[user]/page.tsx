@@ -17,8 +17,7 @@ import { useGetChainByValue } from "~~/hooks/onchain-portfolio/useGetChainByValu
 import { useProfileAddress } from "~~/hooks/onchain-portfolio/useProfileAddress";
 import {
   useScaffoldContract,
-  useScaffoldReadContract,
-  useScaffoldWriteContract,
+  useScaffoldReadContract, // useScaffoldWriteContract,
   useTargetNetwork,
 } from "~~/hooks/scaffold-eth";
 // import { wagmiConfig } from "~~/services/web3/wagmiConfig";
@@ -136,7 +135,7 @@ export default function UserPage({ params }: { params: { network: string; user: 
   const { isProfileSubscriptionActive, isLoadingIsProfileSubscriptionActive, refetch } =
     useComplexIsProfileSubscriptionActive(retrievedChain, profileAddress);
 
-  const { writeContractAsync: writeProfileAsync } = useScaffoldWriteContract("Profile");
+  // const { writeContractAsync: writeProfileAsync } = useScaffoldWriteContract("Profile");
 
   async function refresh() {
     await refetch();
@@ -193,12 +192,12 @@ export default function UserPage({ params }: { params: { network: string; user: 
     }
 
     if (!output) {
-      async function setProfileIsNotUsingEns(value: boolean) {
-        await writeProfileAsync({
-          functionName: "setProfile",
-          args: [profileData?.[0], profileData?.[1], profileData?.[2], value],
-        });
-      }
+      // async function setProfileIsNotUsingEns(value: boolean) {
+      //   // await writeProfileAsync({
+      //   //   functionName: "setProfile",
+      //   //   args: [profileData?.[0], profileData?.[1], profileData?.[2], value],
+      //   // });
+      // }
 
       output = (
         <Profile
@@ -207,7 +206,7 @@ export default function UserPage({ params }: { params: { network: string; user: 
           description={description}
           image={image}
           isNotUsingEns={isNotUsingEns}
-          onCheckChange={setProfileIsNotUsingEns}
+          // onCheckChange={setProfileIsNotUsingEns}
           refetch={refresh}
         />
       );

@@ -3,36 +3,60 @@ pragma solidity >=0.8.0 <0.9.0;
 
 // Useful for debugging. Remove when deploying to a live network.
 import "forge-std/console.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
-// import "./PaymentVerifier.sol";
-
-contract Profile {
-    // error InactiveAccount();
+contract Profile is AccessControl {
+    error NotAuthorizedEntity();
 
     mapping(address => string) s_name;
     mapping(address => string) s_description;
     mapping(address => string) s_imageUrl;
-    mapping(address => bool) s_isNotUsingEns;
 
-    // PaymentVerifier s_paymentVerifier;
-
-    // constructor(address paymentVerifier) {
-    //     s_paymentVerifier = PaymentVerifier(paymentVerifier);
-    // }
+    mapping(address => bool) s_isShowingOnchain;
+    mapping(address => bool) s_isShowingEns;
 
     constructor(
-        address initWho,
-        string memory initName,
-        string memory initDescription,
-        string memory initImageUrl,
-        bool initIsNotUsingEns
-    ) {
+        address[] memory authorizedEntities // address initWho, // string memory initName,
+    ) // string memory initDescription,
+    // string memory initImageUrl,
+    // bool isShowingOnchain,
+    // bool isShowingEns
+    {
+        for (uint256 i = 0; i < authorizedEntities.length; i++) {
+            _grantRole(DEFAULT_ADMIN_ROLE, authorizedEntities[i]);
+        }
+
+        // _setProfile(
+        //     initWho,
+        //     initName,
+        //     initDescription,
+        //     initImageUrl,
+        //     isShowingOnchain,
+        //     isShowingEns
+        // );
+    }
+
+    function setProfile(
+        address who,
+        string memory name,
+        string memory description,
+        string memory imageUrl,
+        bool isShowingOnchain,
+        bool isShowingEns
+    ) external {
+        if (msg.sender != who) {
+            if (!hasRole(DEFAULT_ADMIN_ROLE, msg.sender)) {
+                revert NotAuthorizedEntity();
+            }
+        }
+
         _setProfile(
-            initWho,
-            initName,
-            initDescription,
-            initImageUrl,
-            initIsNotUsingEns
+            who,
+            name,
+            description,
+            imageUrl,
+            isShowingOnchain,
+            isShowingEns
         );
     }
 
@@ -40,12 +64,17 @@ contract Profile {
         string memory name,
         string memory description,
         string memory imageUrl,
-        bool isUsingEns
+        bool isShowingOnchain,
+        bool isShowingEns
     ) external {
-        // if (!s_paymentVerifier.getIsSubscriptionActive(msg.sender)) {
-        //     revert InactiveAccount();
-        // }
-        _setProfile(msg.sender, name, description, imageUrl, isUsingEns);
+        _setProfile(
+            msg.sender,
+            name,
+            description,
+            imageUrl,
+            isShowingOnchain,
+            isShowingEns
+        );
     }
 
     function _setProfile(
@@ -53,12 +82,14 @@ contract Profile {
         string memory name,
         string memory description,
         string memory imageUrl,
-        bool isNotUsingEns
+        bool isShowingOnchain,
+        bool isShowingEns
     ) internal {
         s_name[who] = name;
         s_description[who] = description;
         s_imageUrl[who] = imageUrl;
-        s_isNotUsingEns[who] = isNotUsingEns;
+        s_isShowingOnchain[who] = isShowingOnchain;
+        s_isShowingEns[who] = isShowingEns;
     }
 
     function getProfile(
@@ -70,14 +101,16 @@ contract Profile {
             string memory name,
             string memory description,
             string memory imageUrl,
-            bool isNotUsingEns
+            bool isShowingOnchain,
+            bool isShowingEns
         )
     {
         return (
             s_name[who],
             s_description[who],
             s_imageUrl[who],
-            s_isNotUsingEns[who]
+            s_isShowingOnchain[who],
+            s_isShowingEns[who]
         );
     }
 }

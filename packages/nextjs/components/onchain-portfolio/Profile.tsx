@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { InputBase } from "../scaffold-eth";
 import { PfpCard } from "./PfpCard";
 import { useAccount } from "wagmi";
-import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+
+// import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 type Props = {
   address: string;
@@ -48,7 +49,7 @@ export const Profile = ({ address, name, description, image, isNotUsingEns, refe
     setIsNotUsingEnsValue(isNotUsingEns);
   }, [isNotUsingEns]);
 
-  const { writeContractAsync: writeProfileAsync } = useScaffoldWriteContract("Profile");
+  // const { writeContractAsync: writeProfileAsync } = useScaffoldWriteContract("Profile");
 
   const [profileUpdated, setProfileUpdated] = useState(false);
 
@@ -136,10 +137,10 @@ export const Profile = ({ address, name, description, image, isNotUsingEns, refe
               <button
                 className="btn btn-primary"
                 onClick={async () => {
-                  await writeProfileAsync({
-                    functionName: "setProfile",
-                    args: [nameValue, descriptionValue, imageUrlValue, false],
-                  });
+                  // await writeProfileAsync({
+                  //   functionName: "setProfile",
+                  //   args: [nameValue, descriptionValue, imageUrlValue, false],
+                  // });
                   setProfileUpdated(true);
                 }}
               >
