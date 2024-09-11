@@ -22,9 +22,10 @@ import { useAccount } from "wagmi";
 // import { Profile } from "~~/components/onchain-portfolio/Profile";
 // import { UnknownNetworkCard } from "~~/components/onchain-portfolio/UnknownNetworkCard";
 import { Address } from "~~/components/scaffold-eth";
+import { useChainWithAttributes } from "~~/hooks/onchain-portfolio/useChainWithAttributes";
 // import { dummyUser } from "~~/components/onchain-portfolio/test-data/dummyUser";
 // import { useComplexIsProfileSubscriptionActive } from "~~/hooks/onchain-portfolio/useComplexIsProfileSubscriptionActive";
-import { useGetChainByValue } from "~~/hooks/onchain-portfolio/useGetChainByValue";
+import { useGetChainByName } from "~~/hooks/onchain-portfolio/useGetChainByValue";
 // import { useProfileAddress } from "~~/hooks/onchain-portfolio/useProfileAddress";
 import {
   useNetworkColor, // useScaffoldContract,
@@ -59,7 +60,8 @@ export default function UserPage({ params }: { params: { chain: string; observed
   // }, []);
   // const account = useAccount();
 
-  const { retrievedChain: retrievedChainFromUrl } = useGetChainByValue(params.chain);
+  const { chain: paramsChain } = useGetChainByName(params.chain);
+  const { chain: paramsChainWithAttributes } = useChainWithAttributes(paramsChain);
 
   const account = useAccount();
 
@@ -69,25 +71,21 @@ export default function UserPage({ params }: { params: { chain: string; observed
 
   useEffect(() => {
     async function get() {
-      if (!isAddress(params.observedAccount)) {
-        //If param chain IS Foundry
-        if (retrievedChainFromUrl?.id === foundry.id) {
-          //THEN spoof sepolia ens profile
-          setEnsPublicClient(
-            createPublicClient({
-              chain: spoofChain,
-              transport: http(getAlchemyHttpUrl(spoofChain.id)),
-            }),
-          );
-        }
-        //If param chain IS NOT Foundry
-        else {
-          //THEN load param observedAccount ens profile
-        }
-      }
+      //If params chain IS Foundry THEN create a sepolia client
+      //Else if params chain IS NOT Foundry THEN create a params chain client
+      setEnsPublicClient(
+        createPublicClient({
+          chain: paramsChainWithAttributes?.id === foundry.id ? spoofChain : paramsChainWithAttributes,
+          transport: http(
+            getAlchemyHttpUrl(
+              paramsChainWithAttributes?.id === foundry.id ? spoofChain.id : paramsChainWithAttributes?.id,
+            ),
+          ),
+        }),
+      );
     }
     get();
-  }, []);
+  }, [paramsChainWithAttributes?.id, spoofChain?.id]);
 
   const [ensAddress, setEnsAddress] = useState<string>();
   console.log(ensAddress);
@@ -122,7 +120,7 @@ export default function UserPage({ params }: { params: { chain: string; observed
       //else page observed account IS NOT an address
       else {
         //if page chain IS foundry
-        if (retrievedChainFromUrl?.id === foundry.id) {
+        if (paramsChainWithAttributes?.id === foundry.id) {
           //THEN spoof sepolia ens profile
           const publicClient = createPublicClient({
             chain: spoofChain,
@@ -143,11 +141,11 @@ export default function UserPage({ params }: { params: { chain: string; observed
       }
     }
     get();
-  }, [account?.address, retrievedChainFromUrl?.id]);
+  }, [account?.address, paramsChainWithAttributes?.id]);
 
   useEffect(() => {
     async function get() {
-      if (retrievedChainFromUrl?.id === foundry.id) {
+      if (paramsChainWithAttributes?.id === foundry.id) {
         const publicClient = createPublicClient({
           chain: spoofChain,
           transport: http(getAlchemyHttpUrl(spoofChain.id)),
@@ -166,17 +164,17 @@ export default function UserPage({ params }: { params: { chain: string; observed
       }
     }
     get();
-  }, [params.observedAccount, retrievedChainFromUrl?.id]);
+  }, [params.observedAccount, paramsChainWithAttributes?.id]);
 
-  const networkColor = useNetworkColor(retrievedChainFromUrl);
+  const networkColor = useNetworkColor(paramsChainWithAttributes);
 
   console.log(authenticAddress);
 
   return (
     <div className="flex flex-col flex-grow bg-primary">
       <p>
-        This page is loading data from the <span style={{ color: networkColor }}>{retrievedChainFromUrl?.name}</span>{" "}
-        network.
+        This page is loading data from the{" "}
+        <span style={{ color: networkColor }}>{paramsChainWithAttributes?.name}</span> network.
       </p>
       <p>
         This page is spoofing some data from the <span style={{ color: spoofedNetworkColor }}>{spoofChain.name}</span>{" "}

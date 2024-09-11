@@ -1,27 +1,18 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import * as chains from "viem/chains";
-// import { Chain } from "viem/chains";
+import { Chain } from "viem/chains";
 import scaffoldConfig from "~~/scaffold.config";
-import { ChainWithAttributes, NETWORKS_EXTRA_DATA } from "~~/utils/scaffold-eth";
 
-export function useGetChainByValue(chainValue: string): { retrievedChain: ChainWithAttributes } {
-  const [retrievedChain, setRetrievedChain] = useState<ChainWithAttributes>(scaffoldConfig.targetNetworks[0]);
+export function useGetChainByName(name: string): { chain: Chain } {
+  const [chain, setChain] = useState<Chain>(scaffoldConfig.targetNetworks[0]);
 
   useEffect(() => {
     const anyChains = chains as any;
-    const retrievedChain = anyChains[chainValue];
-    setRetrievedChain(retrievedChain);
-  }, [chainValue]);
+    const retrievedChain = anyChains[name];
+    setChain(retrievedChain);
+  }, [name]);
 
-  return useMemo(
-    () => ({
-      retrievedChain: {
-        ...retrievedChain,
-        ...NETWORKS_EXTRA_DATA[retrievedChain.id],
-      },
-    }),
-    [retrievedChain],
-  );
+  return { chain };
 
   // const [isLoading, setIsLoading] = useState<boolean>(false);
 
