@@ -40,9 +40,11 @@ export default function UserPage({ params }: { params: { chain: string; account:
     chainId: selectedEnsChain?.id,
   });
 
-  let usableEnsName = resolvedEnsName;
+  const usableEnsName = resolvedEnsName;
   let authenticAddress = "";
   const account = useAccount();
+
+  let usableEnsAddress = resolvedEnsAddress;
 
   if (resolvedEnsAddress && resolvedEnsName === null) {
     // Valid network with params.account == ens name.
@@ -50,7 +52,6 @@ export default function UserPage({ params }: { params: { chain: string; account:
     //ensName: params.account
 
     authenticAddress = isFoundry ? account?.address ?? zeroAddress : resolvedEnsAddress;
-    usableEnsName = params.account;
 
     console.log(1);
   }
@@ -70,7 +71,7 @@ export default function UserPage({ params }: { params: { chain: string; account:
     //ensName: undefined
 
     authenticAddress = params.account as `0x${string}`;
-
+    usableEnsAddress = params.account;
     console.log(3);
   }
 
@@ -195,8 +196,10 @@ export default function UserPage({ params }: { params: { chain: string; account:
         <NoticeCard>
           <InactiveSubscriptionCard
             connectedAddress={account?.address || ""}
-            profileAddress={authenticAddress}
-            network={paramsChain}
+            profileAddress={usableEnsAddress || ""}
+            profileAddress2={authenticAddress || ""}
+            network={selectedEnsChain}
+            network2={paramsChain}
             onClick={refresh}
           />
         </NoticeCard>
