@@ -57,23 +57,6 @@ export default function UserPage({ params }: { params: { chain: string; account:
 
   let authenticAddress;
 
-  if (resolvedEnsAddress === undefined) {
-    console.log("Possibly loading");
-
-    if (paramsChain === undefined) {
-      console.log("Not a real network");
-    }
-  }
-
-  if (resolvedEnsAddress === null) {
-    if (isAddress(params.account)) {
-      authenticAddress = params.account;
-      console.log("Valid netwotk with an address that is not registered with ENS.");
-    } else {
-      console.log("Valid network with invalid ens name");
-    }
-  }
-
   if (resolvedEnsAddress) {
     if (isFoundry) {
       console.log("Is spoofing ens for foundry with ens name in url.");
@@ -81,6 +64,21 @@ export default function UserPage({ params }: { params: { chain: string; account:
     } else {
       console.log("Valid network with a valid ens name in url.");
       authenticAddress = resolvedEnsAddress;
+    }
+  }
+  if (resolvedEnsAddress === null) {
+    if (isAddress(params.account)) {
+      authenticAddress = params.account;
+      console.log("Valid network with an address that is not registered with ENS.");
+    } else {
+      console.log("Valid network with invalid ens name");
+    }
+  }
+  if (resolvedEnsAddress === undefined) {
+    console.log("Possibly loading");
+
+    if (paramsChain === undefined) {
+      console.log("Not a real network");
     }
   }
 
