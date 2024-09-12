@@ -27,6 +27,7 @@ import { GrowCard } from "~~/components/onchain-portfolio/GrowCard";
 import { InactiveSubscriptionCard } from "~~/components/onchain-portfolio/InactiveSubscriptionCard";
 import { NotSupportedNetworkCard } from "~~/components/onchain-portfolio/NotSupportedNetworkCard";
 import { NoticeCard } from "~~/components/onchain-portfolio/NoticeCard";
+import { Profile } from "~~/components/onchain-portfolio/Profile";
 import { UnknownNetworkCard } from "~~/components/onchain-portfolio/UnknownNetworkCard";
 import { Address } from "~~/components/scaffold-eth";
 // import { useComplexIsProfileSubscriptionActive } from "~~/hooks/onchain-portfolio/useComplexIsProfileSubscriptionActive";
@@ -177,6 +178,8 @@ export default function UserPage({ params }: { params: { chain: string; account:
     chain: paramsChain,
   });
 
+  console.log(isSubscriptionActive);
+
   const formattedNetwork = insertSpaces(params.chain).replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
 
   async function refresh() {
@@ -234,6 +237,12 @@ export default function UserPage({ params }: { params: { chain: string; account:
       justify = "center";
     }
 
+    const nickname = profileData?.[3] ? profileData?.[0] : ensNickname;
+    const description = profileData?.[3] ? profileData?.[1] : ensDescription;
+    const image = profileData?.[3] ? profileData?.[2] : ensAvatar;
+    const isUsingProfileData = profileData?.[3];
+    const isUsingEns = profileData?.[3];
+
     if (!output) {
       // async function setProfileIsNotUsingEns(value: boolean) {
       //   // await writeProfileAsync({
@@ -241,18 +250,18 @@ export default function UserPage({ params }: { params: { chain: string; account:
       //   //   args: [profileData?.[0], profileData?.[1], profileData?.[2], value],
       //   // });
       // }
-      // output = (
-      //   <Profile
-      //     address={profileAddress}
-      //     name={nickname}
-      //     description={description}
-      //     image={image}
-      //     isUsingProfile={isUsingProfile}
-      //     isUsingEns={isUsingEns}
-      //     // onCheckChange={setProfileIsNotUsingEns}
-      //     refetch={refresh}
-      //   />
-      // );
+      output = (
+        <Profile
+          address={authenticAddress}
+          name={nickname}
+          description={description}
+          image={image}
+          isUsingProfile={isUsingProfileData}
+          isUsingEns={isUsingEns}
+          // onCheckChange={setProfileIsNotUsingEns}
+          refetch={refresh}
+        />
+      );
     }
   }
 
