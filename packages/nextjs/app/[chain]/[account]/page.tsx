@@ -6,6 +6,7 @@ import { isAddress, zeroAddress } from "viem";
 import { foundry, sepolia } from "viem/chains";
 import { normalize } from "viem/ens";
 import { useAccount, useEnsAddress, useEnsAvatar, useEnsName, useEnsText } from "wagmi";
+import { DebuggingSection } from "~~/components/onchain-portfolio/DebuggingSection";
 import { EditProfile } from "~~/components/onchain-portfolio/EditProfile";
 import { GrowCard } from "~~/components/onchain-portfolio/GrowCard";
 import { InactiveSubscriptionCard } from "~~/components/onchain-portfolio/InactiveSubscriptionCard";
@@ -13,9 +14,8 @@ import { NotSupportedNetworkCard } from "~~/components/onchain-portfolio/NotSupp
 import { NoticeCard } from "~~/components/onchain-portfolio/NoticeCard";
 import { Profile } from "~~/components/onchain-portfolio/Profile";
 import { UnknownNetworkCard } from "~~/components/onchain-portfolio/UnknownNetworkCard";
-import { Address } from "~~/components/scaffold-eth";
 import "~~/hooks/scaffold-eth";
-import { useNetworkColor, useScaffoldContract, useScaffoldReadContract } from "~~/hooks/scaffold-eth";
+import { useScaffoldContract, useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { getChainWithAttributes } from "~~/utils/onchain-portfolio/scaffoldEth";
 import insertSpaces from "~~/utils/onchain-portfolio/textManipulation";
 import { getChainByName } from "~~/utils/onchain-portfolio/viemHelpers";
@@ -102,12 +102,6 @@ export default function UserPage({ params }: { params: { chain: string; account:
     chainId: selectedEnsChain?.id,
   });
 
-  const paramsChainColor = useNetworkColor(getChainWithAttributes(paramsChain));
-
-  const selectedEnsChainColor = useNetworkColor(
-    selectedEnsChain ? getChainWithAttributes(selectedEnsChain) : undefined,
-  );
-
   const {
     data: profileData,
     isLoading: isLoadingProfile,
@@ -155,11 +149,6 @@ export default function UserPage({ params }: { params: { chain: string; account:
     isLoadingPaymentVerifier ||
     isLoadingProfile;
 
-  // isLoadingPaymentVerifier ||
-  // isLoadingRetrievedChain ||
-  // isLoadingIsProfileSubscriptionActive ||
-  // isLoadingProfileAddress ||
-  // isLoadingEns;
   const [isEditingPage, setIsEditingPage] = useState(false);
 
   if (isLoading) {
@@ -206,13 +195,6 @@ export default function UserPage({ params }: { params: { chain: string; account:
     const image = profileData?.[3] ? profileData?.[2] : ensAvatar;
 
     if (!output) {
-      // async function setProfileIsNotUsingEns(value: boolean) {
-      //   // await writeProfileAsync({
-      //   //   functionName: "setProfile",
-      //   //   args: [profileData?.[0], profileData?.[1], profileData?.[2], value],
-      //   // });
-      // }
-
       output = !isEditingPage ? (
         <>
           <Profile address={authenticAddress} name={nickname} description={description} image={image} />
@@ -246,35 +228,14 @@ export default function UserPage({ params }: { params: { chain: string; account:
 
   console.log("render check");
 
-  let debuggingSection1;
-  let debuggingSection2;
-  if (isDebugging) {
-    if (paramsChain) {
-      debuggingSection1 = (
-        <p>
-          This page is loading smart contract data from the{" "}
-          <span style={{ color: paramsChainColor }}>{paramsChain?.name}</span> network.
-        </p>
-      );
-    }
-
-    if (selectedEnsChain) {
-      debuggingSection2 = (
-        <>
-          <p>
-            This page is loading ENS data from the{" "}
-            <span style={{ color: selectedEnsChainColor }}>{selectedEnsChain?.name}</span> network.
-          </p>
-          <Address address={authenticAddress} chain={selectedEnsChain} />
-        </>
-      );
-    }
-  }
-
   return (
     <GrowCard justify={justify}>
-      {debuggingSection1}
-      {debuggingSection2}
+      <DebuggingSection
+        isDebugging={isDebugging}
+        paramsChain={paramsChain}
+        selectedEnsChain={selectedEnsChain}
+        authenticAddress={authenticAddress}
+      />
       {output}
     </GrowCard>
   );
