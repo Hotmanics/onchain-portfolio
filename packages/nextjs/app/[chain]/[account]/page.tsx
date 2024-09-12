@@ -59,6 +59,9 @@ import { getChainByName } from "~~/utils/onchain-portfolio/viemHelpers";
 // import insertSpaces from "~~/utils/onchain-portfolio/textManipulation";
 
 // const ensSpoofChain = { ...sepolia, ...NETWORKS_EXTRA_DATA[sepolia.id] };
+
+const isDebugging = false;
+
 const ensSpoofChain = getChainWithAttributes(sepolia);
 
 export default function UserPage({ params }: { params: { chain: string; account: string } }) {
@@ -253,17 +256,21 @@ export default function UserPage({ params }: { params: { chain: string; account:
   }
 
   console.log("render check");
-  return (
-    <GrowCard justify={justify}>
-      {paramsChain ? (
+
+  let debuggingSection1;
+  let debuggingSection2;
+  if (isDebugging) {
+    if (paramsChain) {
+      debuggingSection1 = (
         <p>
           This page is loading smart contract data from the{" "}
           <span style={{ color: paramsChainColor }}>{paramsChain?.name}</span> network.
         </p>
-      ) : (
-        <></>
-      )}
-      {selectedEnsChain ? (
+      );
+    }
+
+    if (selectedEnsChain) {
+      debuggingSection2 = (
         <>
           <p>
             This page is loading ENS data from the{" "}
@@ -271,9 +278,14 @@ export default function UserPage({ params }: { params: { chain: string; account:
           </p>
           <Address address={authenticAddress} chain={selectedEnsChain} />
         </>
-      ) : (
-        <></>
-      )}
+      );
+    }
+  }
+
+  return (
+    <GrowCard justify={justify}>
+      {debuggingSection1}
+      {debuggingSection2}
       {output}
     </GrowCard>
   );
