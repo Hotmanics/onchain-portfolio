@@ -1,12 +1,13 @@
 "use client";
 
 import "react";
+// import { useEffect } from "react";
 // import { useTheme } from "next-themes";
 import {
   // PublicClient, //Chain,
   // createPublicClient,
   // http,
-  isAddress,
+  // isAddress,
   zeroAddress,
 } from "viem";
 import { foundry, sepolia } from "viem/chains";
@@ -17,7 +18,9 @@ import { normalize } from "viem/ens";
 import {
   useAccount, //useAccount,
   useEnsAddress,
-  useEnsName, // useEnsAvatar, // useEnsName,
+  useEnsAvatar,
+  useEnsName,
+  useEnsText, // useEnsAvatar, // useEnsName,
   // useEnsText, // usePublicClient
 } from "wagmi";
 // import { getPublicClient } from "wagmi/actions";
@@ -55,10 +58,9 @@ export default function UserPage({ params }: { params: { chain: string; account:
   });
 
   const { data: resolvedEnsName } = useEnsName({ address: params.account, chainId: selectedEnsChain?.id });
-  console.log(resolvedEnsAddress);
-  console.log(resolvedEnsName);
 
-  let authenticAddress: string;
+  let usableEnsName = resolvedEnsName;
+  let authenticAddress = "";
   const account = useAccount();
 
   if (resolvedEnsAddress && resolvedEnsName === null) {
@@ -67,6 +69,7 @@ export default function UserPage({ params }: { params: { chain: string; account:
     //ensName: params.account
 
     authenticAddress = isFoundry ? account?.address ?? zeroAddress : resolvedEnsAddress;
+    usableEnsName = params.account;
 
     console.log(1);
   }
@@ -77,8 +80,6 @@ export default function UserPage({ params }: { params: { chain: string; account:
     //ensName: resolvedEnsName
 
     authenticAddress = params.account;
-
-    console.log(authenticAddress);
     console.log(2);
   }
 
@@ -97,58 +98,32 @@ export default function UserPage({ params }: { params: { chain: string; account:
     console.log(4);
   }
 
-  return <></>;
-  if (isAddress(params.account)) {
-    //getEnsName()
-  }
+  console.log(usableEnsName);
 
-  if (resolvedEnsAddress) {
-    if (isFoundry) {
-      console.log("Is spoofing ens for foundry with ens name in url.");
-      // authenticAddress = account?.address ?? zeroAddress;
-    } else {
-      console.log("Valid network with a valid ens name in url.");
-      // authenticAddress = resolvedEnsAddress;
-    }
-  }
-  if (resolvedEnsAddress === null) {
-    if (isAddress(params.account)) {
-      // authenticAddress = params.account;
-      console.log("Valid network with a valid address"); //that is not registered with ENS.
-    } else {
-      console.log("Valid network with invalid ens name");
-    }
-  }
-  if (resolvedEnsAddress === undefined) {
-    console.log("Possibly loading");
+  const { data: ensNickname } = useEnsText({
+    name: normalize(usableEnsName || ""),
+    chainId: selectedEnsChain?.id,
+    key: "name",
+  });
 
-    if (paramsChain === undefined) {
-      console.log("Not a real network");
-    }
-  }
+  const { data: ensDescription } = useEnsText({
+    name: normalize(usableEnsName || ""),
+    chainId: selectedEnsChain?.id,
+    key: "description",
+  });
+
+  const { data: ensAvatar } = useEnsAvatar({
+    name: normalize(usableEnsName || ""),
+    chainId: selectedEnsChain?.id,
+  });
+
+  console.log(ensNickname);
+  console.log(ensDescription);
+  console.log(ensAvatar);
 
   console.log(authenticAddress);
-  // const { data: ensNickname } = useEnsText({
-  //   name: normalize(params.account),
-  //   chainId: selectedEnsChain?.id,
-  //   key: "name",
-  // });
 
-  // const { data: ensDescription } = useEnsText({
-  //   name: normalize(params.account),
-  //   chainId: selectedEnsChain?.id,
-  //   key: "description",
-  // });
-
-  // const { data: ensAvatar } = useEnsAvatar({
-  //   name: normalize(params.account),
-  //   chainId: selectedEnsChain?.id,
-  // });
-
-  // console.log(ensNickname);
-  // console.log(ensDescription);
-  // console.log(ensAvatar);
-
+  return <></>;
   // const [ensAddress, setEnsAddress] = useState<string>();
   // // console.log(ensAddress);
 
