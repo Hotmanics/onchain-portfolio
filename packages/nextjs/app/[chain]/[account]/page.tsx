@@ -2,7 +2,7 @@
 
 import "react";
 import { useState } from "react";
-import { isAddress, zeroAddress } from "viem";
+import { zeroAddress } from "viem";
 import { foundry, sepolia } from "viem/chains";
 import { normalize } from "viem/ens";
 import { useAccount, useEnsAddress, useEnsAvatar, useEnsName, useEnsText } from "wagmi";
@@ -28,7 +28,8 @@ export default function UserPage({ params }: { params: { chain: string; account:
 
   const isFoundry = paramsChain?.id === foundry.id;
 
-  const selectedEnsChain = isFoundry && !isAddress(params.account) ? ensSpoofChain : paramsChain;
+  const selectedEnsChain = isFoundry ? ensSpoofChain : paramsChain;
+
   const { data: resolvedEnsAddress, isLoading: isLoadingEnsAddress } = useEnsAddress({
     name: normalize(params.account),
     chainId: selectedEnsChain?.id,
@@ -80,8 +81,14 @@ export default function UserPage({ params }: { params: { chain: string; account:
       //Invalid Network
       console.log(5);
     } else {
+      if (isFoundry) {
+        authenticAddress = params.account;
+        console.log(6);
+      }
       //Unsupported Network
-      console.log(6);
+      else {
+        console.log(7);
+      }
     }
   }
 
@@ -139,6 +146,16 @@ export default function UserPage({ params }: { params: { chain: string; account:
   let justify: "start" | "center" = "start";
   let output;
 
+  console.log(isLoadingEnsAddress);
+  console.log(isLoadingEnsName);
+  console.log(isLoadingEnsDescription);
+  console.log(isLoadingEnsDescription);
+  console.log(isLoadingEnsAvatar);
+  console.log(isLoadingEnsNickname);
+  console.log(isLoadingIsSubscriptionActive);
+  console.log(isLoadingPaymentVerifier);
+  console.log(isLoadingProfile);
+
   const isLoading =
     isLoadingEnsAddress ||
     isLoadingEnsName ||
@@ -185,6 +202,8 @@ export default function UserPage({ params }: { params: { chain: string; account:
         </NoticeCard>
       );
     }
+
+    console.log(authenticAddress);
 
     if (output) {
       justify = "center";
