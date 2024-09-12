@@ -1,6 +1,7 @@
 "use client";
 
 import "react";
+import { useState } from "react";
 // import { useEffect } from "react";
 // import { useTheme } from "next-themes";
 import {
@@ -23,6 +24,7 @@ import {
   useEnsText, // useEnsAvatar, // useEnsName,
   // useEnsText, // usePublicClient
 } from "wagmi";
+import { EditProfile } from "~~/components/onchain-portfolio/EditProfile";
 import { GrowCard } from "~~/components/onchain-portfolio/GrowCard";
 import { InactiveSubscriptionCard } from "~~/components/onchain-portfolio/InactiveSubscriptionCard";
 import { NotSupportedNetworkCard } from "~~/components/onchain-portfolio/NotSupportedNetworkCard";
@@ -184,6 +186,7 @@ export default function UserPage({ params }: { params: { chain: string; account:
   // isLoadingIsProfileSubscriptionActive ||
   // isLoadingProfileAddress ||
   // isLoadingEns;
+  const [isEditingPage, setIsEditingPage] = useState(false);
 
   if (isLoading) {
     justify = "center";
@@ -227,8 +230,6 @@ export default function UserPage({ params }: { params: { chain: string; account:
     const nickname = profileData?.[3] ? profileData?.[0] : ensNickname;
     const description = profileData?.[3] ? profileData?.[1] : ensDescription;
     const image = profileData?.[3] ? profileData?.[2] : ensAvatar;
-    const isUsingProfileData = profileData?.[3];
-    const isUsingEns = profileData?.[4];
 
     if (!output) {
       // async function setProfileIsNotUsingEns(value: boolean) {
@@ -238,18 +239,32 @@ export default function UserPage({ params }: { params: { chain: string; account:
       //   // });
       // }
 
-      console.log(isUsingEns);
-
-      output = (
-        <Profile
-          address={authenticAddress}
-          name={nickname}
-          description={description}
-          image={image}
-          isUsingProfile={isUsingProfileData}
-          isUsingEns={isUsingEns}
-          // onCheckChange={setProfileIsNotUsingEns}
-          refetch={refresh}
+      output = !isEditingPage ? (
+        <>
+          <Profile address={authenticAddress} name={nickname} description={description} image={image} />
+          {account?.address === authenticAddress ? (
+            <button
+              className="btn btn-secondary"
+              onClick={() => {
+                setIsEditingPage(true);
+              }}
+            >
+              Edit Page
+            </button>
+          ) : (
+            <></>
+          )}
+        </>
+      ) : (
+        <EditProfile
+          name={profileData?.[0]}
+          description={profileData?.[1]}
+          image={profileData?.[2]}
+          isUsingProfile={profileData?.[3]}
+          isUsingEns={profileData?.[4]}
+          onExitEditMode={() => {
+            setIsEditingPage(false);
+          }}
         />
       );
     }
