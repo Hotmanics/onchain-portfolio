@@ -5,6 +5,7 @@ import type { ExtractAbiFunctionNames } from "abitype";
 import { ReadContractErrorType } from "viem";
 import { useBlockNumber, useReadContract } from "wagmi";
 import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
+import { enabledChains } from "~~/services/web3/wagmiConfig";
 // import { wagmiConfig } from "~~/services/web3/wagmiConfig";
 import {
   AbiFunctionReturnType,
@@ -40,7 +41,7 @@ export const useScaffoldReadContract = <
   const defaultWatch = watch ?? true;
 
   const readContractHookRes = useReadContract({
-    chainId: chain?.id ?? targetNetwork.id,
+    chainId: selectedChain,
     functionName,
     address: deployedContract?.address,
     abi: deployedContract?.abi,
@@ -58,9 +59,16 @@ export const useScaffoldReadContract = <
   };
 
   const queryClient = useQueryClient();
+  let isPresent = false;
+  enabledChains.forEach(chain => {
+    if (chain.id === selectedChain) {
+      isPresent = true;
+    }
+  });
+
   const { data: blockNumber } = useBlockNumber({
-    watch: defaultWatch,
-    chainId: chain?.id ?? targetNetwork.id,
+    watch: defaultWatch && isPresent,
+    chainId: selectedChain,
     query: {
       enabled: defaultWatch,
     },

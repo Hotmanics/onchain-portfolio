@@ -14,7 +14,7 @@ export function getNetworkColor(network: ChainWithAttributes, isDarkMode: boolea
 /**
  * Gets the color of the target network
  */
-export const useNetworkColor = (chain?: Chain) => {
+export const useNetworkColor = (chain?: Chain | undefined) => {
   const { resolvedTheme } = useTheme();
   const { targetNetwork } = useTargetNetwork();
 
@@ -23,6 +23,8 @@ export const useNetworkColor = (chain?: Chain) => {
   const [color, setColor] = useState<string>();
 
   useEffect(() => {
+    if (chain === undefined) return;
+
     setColor(getNetworkColor(chain ?? targetNetwork, isDarkMode));
   }, [chain, chain?.id, targetNetwork, targetNetwork?.id, isDarkMode]);
 

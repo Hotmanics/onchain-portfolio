@@ -23,6 +23,11 @@ import {
   useEnsText, // useEnsAvatar, // useEnsName,
   // useEnsText, // usePublicClient
 } from "wagmi";
+import { GrowCard } from "~~/components/onchain-portfolio/GrowCard";
+import { InactiveSubscriptionCard } from "~~/components/onchain-portfolio/InactiveSubscriptionCard";
+import { NotSupportedNetworkCard } from "~~/components/onchain-portfolio/NotSupportedNetworkCard";
+import { NoticeCard } from "~~/components/onchain-portfolio/NoticeCard";
+import { UnknownNetworkCard } from "~~/components/onchain-portfolio/UnknownNetworkCard";
 import { Address } from "~~/components/scaffold-eth";
 // import { useComplexIsProfileSubscriptionActive } from "~~/hooks/onchain-portfolio/useComplexIsProfileSubscriptionActive";
 // import { getPublicClient } from "wagmi/actions";
@@ -38,10 +43,14 @@ import { Address } from "~~/components/scaffold-eth";
 // import { useProfileAddress } from "~~/hooks/onchain-portfolio/useProfileAddress";
 import "~~/hooks/scaffold-eth";
 import {
-  useNetworkColor, // useScaffoldContract,
+  useNetworkColor,
+  useScaffoldContract,
+  useScaffoldReadContract, // useScaffoldWriteContract, // useScaffoldContract,
   // useScaffoldReadContract, // useScaffoldWriteContract,
 } from "~~/hooks/scaffold-eth";
+// import { enabledChains } from "~~/services/web3/wagmiConfig";
 import { getChainWithAttributes } from "~~/utils/onchain-portfolio/scaffoldEth";
+import insertSpaces from "~~/utils/onchain-portfolio/textManipulation";
 // import insertSpaces from "~~/utils/onchain-portfolio/textManipulation";
 import { getChainByName } from "~~/utils/onchain-portfolio/viemHelpers";
 
@@ -140,46 +149,116 @@ export default function UserPage({ params }: { params: { chain: string; account:
   console.log(paramsChain);
 
   const paramsChainColor = useNetworkColor(getChainWithAttributes(paramsChain));
-  const selectedEnsChainColor = useNetworkColor(selectedEnsChain);
 
-  // const { data: profileData, refetch: refetchProfileData } = useScaffoldReadContract({
-  //   contractName: "Profile",
-  //   functionName: "getProfile",
-  //   args: [authenticAddress],
-  // });
+  const selectedEnsChainColor = useNetworkColor(
+    selectedEnsChain ? getChainWithAttributes(selectedEnsChain) : undefined,
+  );
+
+  const { data: profileData, refetch: getProfileData } = useScaffoldReadContract({
+    contractName: "Profile",
+    functionName: "getProfile",
+    args: [authenticAddress],
+    chain: paramsChain,
+  });
+
+  console.log(profileData);
 
   // // console.log(profileData);
 
-  // const formattedNetwork = insertSpaces(params.chain).replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
+  const { data: paymentVerifier } = useScaffoldContract({
+    contractName: "PaymentVerifier",
+    chain: paramsChain,
+  });
 
-  // const { data: paymentVerifier, isLoading: isLoadingPaymentVerifier } = useScaffoldContract({
-  //   contractName: "PaymentVerifier",
-  //   chain: paramsChain,
-  // });
+  const { data: isSubscriptionActive, refetch: refetchIsSubscriptionActive } = useScaffoldReadContract({
+    contractName: "PaymentVerifier",
+    functionName: "getIsSubscriptionActive",
+    args: [authenticAddress],
+    chain: paramsChain,
+  });
 
-  // const { data: isSubscriptionActive } = useScaffoldReadContract({
-  //   contractName: "PaymentVerifier",
-  //   functionName: "getIsSubscriptionActive",
-  //   args: [authenticAddress],
-  //   chain: paramsChain,
-  // });
+  const formattedNetwork = insertSpaces(params.chain).replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
 
-  // console.log(isSubscriptionActive);
+  async function refresh() {
+    await refetchIsSubscriptionActive();
+    await getProfileData();
+  }
 
-  // const { isProfileSubscriptionActive, isLoadingIsProfileSubscriptionActive, refetch } =
-  //   useComplexIsProfileSubscriptionActive(paramsChain, authenticAddress);
+  let justify: "start" | "center" = "start";
+  let output;
 
-  // console.log(isProfileSubscriptionActive);
+  const isLoading = false;
 
-  // const { writeContractAsync: writeProfileAsync } = useScaffoldWriteContract("Profile");
+  // isLoadingPaymentVerifier ||
+  // isLoadingRetrievedChain ||
+  // isLoadingIsProfileSubscriptionActive ||
+  // isLoadingProfileAddress ||
+  // isLoadingEns;
 
-  // async function refresh() {
-  //   await refetch();
-  //   await refetchProfileData();
-  // }
+  if (isLoading) {
+    justify = "center";
+    output = (
+      <>
+        <p className="text-center text-4xl">{"Spinning up the hamsters."}</p>
+        <p className="text-center text-4xl">{"Tricking the hamsters with more cheese."}</p>
+        <p className="text-center text-4xl">{"Buying more hamsters."}</p>
+      </>
+    );
+  } else {
+    if (paramsChain === undefined) {
+      output = (
+        <NoticeCard>
+          <UnknownNetworkCard chainName={params.chain} />
+        </NoticeCard>
+      );
+    } else if (paymentVerifier?.address === undefined) {
+      output = (
+        <NoticeCard>
+          <NotSupportedNetworkCard chain={paramsChain} formattedNetwork={formattedNetwork} />
+        </NoticeCard>
+      );
+    } else if (!isSubscriptionActive) {
+      output = (
+        <NoticeCard>
+          <InactiveSubscriptionCard
+            connectedAddress={account?.address || ""}
+            profileAddress={authenticAddress}
+            network={paramsChain}
+            onClick={refresh}
+          />
+        </NoticeCard>
+      );
+    }
 
+    if (output) {
+      justify = "center";
+    }
+
+    if (!output) {
+      // async function setProfileIsNotUsingEns(value: boolean) {
+      //   // await writeProfileAsync({
+      //   //   functionName: "setProfile",
+      //   //   args: [profileData?.[0], profileData?.[1], profileData?.[2], value],
+      //   // });
+      // }
+      // output = (
+      //   <Profile
+      //     address={profileAddress}
+      //     name={nickname}
+      //     description={description}
+      //     image={image}
+      //     isUsingProfile={isUsingProfile}
+      //     isUsingEns={isUsingEns}
+      //     // onCheckChange={setProfileIsNotUsingEns}
+      //     refetch={refresh}
+      //   />
+      // );
+    }
+  }
+
+  console.log("render check");
   return (
-    <div className="flex flex-col flex-grow bg-primary">
+    <GrowCard justify={justify}>
       {paramsChain ? (
         <p>
           This page is loading smart contract data from the{" "}
@@ -199,81 +278,7 @@ export default function UserPage({ params }: { params: { chain: string; account:
       ) : (
         <></>
       )}
-    </div>
+      {output}
+    </GrowCard>
   );
-
-  // let justify: "start" | "center" = "start";
-  // let output;
-
-  // const isLoading =
-  //   isLoadingPaymentVerifier ||
-  //   isLoadingRetrievedChain ||
-  //   isLoadingIsProfileSubscriptionActive ||
-  //   isLoadingProfileAddress ||
-  //   isLoadingEns;
-
-  // if (isLoading) {
-  //   justify = "center";
-  //   output = (
-  //     <>
-  //       <p className="text-center text-4xl">{"Spinning up the hamsters."}</p>
-  //       <p className="text-center text-4xl">{"Tricking the hamsters with more cheese."}</p>
-  //       <p className="text-center text-4xl">{"Buying more hamsters."}</p>
-  //     </>
-  //   );
-  // } else {
-  //   if (retrievedChain === undefined) {
-  //     output = (
-  //       <NoticeCard>
-  //         <UnknownNetworkCard chainName={params.network} />
-  //       </NoticeCard>
-  //     );
-  //   } else if (paymentVerifier?.address === undefined) {
-  //     output = (
-  //       <NoticeCard>
-  //         <NotSupportedNetworkCard chain={retrievedChain} formattedNetwork={formattedNetwork} />
-  //       </NoticeCard>
-  //     );
-  //   } else if (!isProfileSubscriptionActive) {
-  //     output = (
-  //       <NoticeCard>
-  //         <InactiveSubscriptionCard
-  //           connectedAddress={account?.address || ""}
-  //           profileAddress={profileAddress}
-  //           network={retrievedChain}
-  //           onClick={refresh}
-  //         />
-  //       </NoticeCard>
-  //     );
-  //   }
-
-  // if (output) {
-  //   justify = "center";
-  // }
-
-  // if (!output) {
-  //   // async function setProfileIsNotUsingEns(value: boolean) {
-  //   //   // await writeProfileAsync({
-  //   //   //   functionName: "setProfile",
-  //   //   //   args: [profileData?.[0], profileData?.[1], profileData?.[2], value],
-  //   //   // });
-  //   // }
-  //   // output = (
-  //   //   <Profile
-  //   //     address={profileAddress}
-  //   //     name={nickname}
-  //   //     description={description}
-  //   //     image={image}
-  //   //     isUsingProfile={isUsingProfile}
-  //   //     isUsingEns={isUsingEns}
-  //   //     // onCheckChange={setProfileIsNotUsingEns}
-  //   //     refetch={refresh}
-  //   //   />
-  //   // );
-  // }
-  // }
-
-  console.log("render check");
-  return <></>;
-  // return <GrowCard justify={justify}>{output}</GrowCard>;
 }
