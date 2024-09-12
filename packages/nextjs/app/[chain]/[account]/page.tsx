@@ -137,8 +137,10 @@ export default function UserPage({ params }: { params: { chain: string; account:
 
   console.log(authenticAddress);
 
+  console.log(paramsChain);
+
   const paramsChainColor = useNetworkColor(getChainWithAttributes(paramsChain));
-  const ensSpoofChainColor = useNetworkColor(ensSpoofChain);
+  const selectedEnsChainColor = useNetworkColor(selectedEnsChain);
 
   // const { data: profileData, refetch: refetchProfileData } = useScaffoldReadContract({
   //   contractName: "Profile",
@@ -190,7 +192,7 @@ export default function UserPage({ params }: { params: { chain: string; account:
         <>
           <p>
             This page is loading ENS data from the{" "}
-            <span style={{ color: ensSpoofChainColor }}>{selectedEnsChain?.name}</span> network.
+            <span style={{ color: selectedEnsChainColor }}>{selectedEnsChain?.name}</span> network.
           </p>
           <Address address={authenticAddress} chain={selectedEnsChain} />
         </>
