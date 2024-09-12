@@ -4,7 +4,7 @@ import "react";
 // import { useEffect } from "react";
 // import { useTheme } from "next-themes";
 import {
-  // PublicClient, //Chain,
+  isAddress, // PublicClient, //Chain,
   // createPublicClient,
   // http,
   // isAddress,
@@ -53,7 +53,7 @@ export default function UserPage({ params }: { params: { chain: string; account:
 
   const isFoundry = paramsChain?.id === foundry.id;
 
-  const selectedEnsChain = isFoundry ? ensSpoofChain : paramsChain;
+  const selectedEnsChain = isFoundry && !isAddress(params.account) ? ensSpoofChain : paramsChain;
   const { data: resolvedEnsAddress } = useEnsAddress({
     name: normalize(params.account),
     chainId: selectedEnsChain?.id,
