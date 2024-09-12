@@ -23,6 +23,7 @@ import {
   useEnsText, // useEnsAvatar, // useEnsName,
   // useEnsText, // usePublicClient
 } from "wagmi";
+import { Address } from "~~/components/scaffold-eth";
 // import { getPublicClient } from "wagmi/actions";
 // import { GrowCard } from "~~/components/onchain-portfolio/GrowCard";
 // import { InactiveSubscriptionCard } from "~~/components/onchain-portfolio/InactiveSubscriptionCard";
@@ -35,6 +36,7 @@ import {
 // import { useComplexIsProfileSubscriptionActive } from "~~/hooks/onchain-portfolio/useComplexIsProfileSubscriptionActive";
 // import { useProfileAddress } from "~~/hooks/onchain-portfolio/useProfileAddress";
 import "~~/hooks/scaffold-eth";
+import { useNetworkColor } from "~~/hooks/scaffold-eth";
 import { getChainWithAttributes } from "~~/utils/onchain-portfolio/scaffoldEth";
 import { getChainByName } from "~~/utils/onchain-portfolio/viemHelpers";
 
@@ -123,98 +125,32 @@ export default function UserPage({ params }: { params: { chain: string; account:
 
   console.log(authenticAddress);
 
-  return <></>;
-  // const [ensAddress, setEnsAddress] = useState<string>();
-  // // console.log(ensAddress);
+  const paramsChainColor = useNetworkColor(getChainWithAttributes(paramsChain));
+  const ensSpoofChainColor = useNetworkColor(ensSpoofChain);
 
-  // useEffect(() => {
-  //   async function get() {
-  //     if (ensPublicClient === undefined) return;
-
-  //     if (isAddress(params.observedAccount)) {
-  //       setEnsAddress(params.observedAccount);
-  //     } else {
-  //       const resolvedAddr = await ensPublicClient.getEnsAddress({
-  //         name: normalize(params.observedAccount),
-  //       });
-
-  //       //if site user wallet is not connected
-  //       if (account?.address === undefined) {
-  //         if (resolvedAddr !== null) setEnsAddress(resolvedAddr);
-  //       }
-  //     }
-  //   }
-  //   get();
-  // }, [ensPublicClient?.chain?.id, params.observedAccount]);
-
-  // const [authenticAddress, setAuthenticAddress] = useState<string>();
-
-  // useEffect(() => {
-  //   async function get() {
-  //     //if page observed account IS an address
-  //     if (isAddress(params.observedAccount)) {
-  //       //then set finalized observed account
-  //       setAuthenticAddress(params.observedAccount);
-  //     }
-  //     //else page observed account IS NOT an address
-  //     else {
-  //       //if page chain IS foundry
-  //       if (paramsChainWithAttributes?.id === foundry.id) {
-  //         //THEN spoof sepolia ens profile
-  //         const publicClient = createPublicClient({
-  //           chain: spoofChain,
-  //           transport: http(getAlchemyHttpUrl(spoofChain.id)),
-  //         });
-
-  //         const resolvedAddr = await publicClient.getEnsAddress({
-  //           name: normalize(params.observedAccount),
-  //         });
-
-  //         //if site user wallet is not connected
-  //         if (account?.address === undefined) {
-  //           if (resolvedAddr !== null) setAuthenticAddress(resolvedAddr);
-  //         }
-  //       }
-  //     }
-  //   }
-  //   get();
-  // }, [account?.address, paramsChainWithAttributes?.id]);
-
-  // useEffect(() => {
-  //   async function get() {
-  //     if (paramsChainWithAttributes?.id === foundry.id) {
-  //       const publicClient = createPublicClient({
-  //         chain: spoofChain,
-  //         transport: http(getAlchemyHttpUrl(spoofChain.id)),
-  //       });
-
-  //       const nickname = await publicClient.getEnsText({ name: normalize(params.observedAccount), key: "name" });
-  //       const description = await publicClient.getEnsText({
-  //         name: normalize(params.observedAccount),
-  //         key: "description",
-  //       });
-  //       const image = await publicClient.getEnsAvatar({ name: normalize(params.observedAccount) });
-  //     }
-  //   }
-  //   get();
-  // }, [params.observedAccount, paramsChainWithAttributes?.id]);
-
-  return <></>;
-  // const networkColor = useNetworkColor(paramsChainWithAttributes);
-
-  // return (
-  //   <div className="flex flex-col flex-grow bg-primary">
-  //     <p>
-  //       This page is loading data from the{" "}
-  //       <span style={{ color: networkColor }}>{paramsChainWithAttributes?.name}</span> network.
-  //     </p>
-  //     <p>
-  //       This page is spoofing some data from the <span style={{ color: spoofedNetworkColor }}>{spoofChain.name}</span>{" "}
-  //       network.
-  //     </p>
-  //     <Address address={authenticAddress} chain={spoofChain} />
-  //   </div>
-  // );
+  return (
+    <div className="flex flex-col flex-grow bg-primary">
+      {paramsChain ? (
+        <p>
+          This page is loading smart contract data from the{" "}
+          <span style={{ color: paramsChainColor }}>{paramsChain?.name}</span> network.
+        </p>
+      ) : (
+        <></>
+      )}
+      {selectedEnsChain ? (
+        <>
+          <p>
+            This page is loading ENS data from the{" "}
+            <span style={{ color: ensSpoofChainColor }}>{selectedEnsChain?.name}</span> network.
+          </p>
+          <Address address={authenticAddress} chain={selectedEnsChain} />
+        </>
+      ) : (
+        <></>
+      )}
+    </div>
+  );
 
   // useEffect(() => {
   //   async function get() {
