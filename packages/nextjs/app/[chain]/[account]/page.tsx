@@ -24,6 +24,7 @@ import {
   // useEnsText, // usePublicClient
 } from "wagmi";
 import { Address } from "~~/components/scaffold-eth";
+// import { useComplexIsProfileSubscriptionActive } from "~~/hooks/onchain-portfolio/useComplexIsProfileSubscriptionActive";
 // import { getPublicClient } from "wagmi/actions";
 // import { GrowCard } from "~~/components/onchain-portfolio/GrowCard";
 // import { InactiveSubscriptionCard } from "~~/components/onchain-portfolio/InactiveSubscriptionCard";
@@ -36,8 +37,12 @@ import { Address } from "~~/components/scaffold-eth";
 // import { useComplexIsProfileSubscriptionActive } from "~~/hooks/onchain-portfolio/useComplexIsProfileSubscriptionActive";
 // import { useProfileAddress } from "~~/hooks/onchain-portfolio/useProfileAddress";
 import "~~/hooks/scaffold-eth";
-import { useNetworkColor } from "~~/hooks/scaffold-eth";
+import {
+  useNetworkColor, // useScaffoldContract,
+  // useScaffoldReadContract, // useScaffoldWriteContract,
+} from "~~/hooks/scaffold-eth";
 import { getChainWithAttributes } from "~~/utils/onchain-portfolio/scaffoldEth";
+// import insertSpaces from "~~/utils/onchain-portfolio/textManipulation";
 import { getChainByName } from "~~/utils/onchain-portfolio/viemHelpers";
 
 // import { wagmiConfig } from "~~/services/web3/wagmiConfig";
@@ -96,7 +101,13 @@ export default function UserPage({ params }: { params: { chain: string; account:
   }
 
   if (resolvedEnsAddress === undefined && resolvedEnsName === undefined) {
-    //Invalid Network.
+    //Invalid Network or Unsupported network.
+
+    if (paramsChain === undefined) {
+      //Invalid Network
+    } else {
+      //Unsupported Network
+    }
     console.log(4);
   }
 
@@ -128,6 +139,42 @@ export default function UserPage({ params }: { params: { chain: string; account:
   const paramsChainColor = useNetworkColor(getChainWithAttributes(paramsChain));
   const ensSpoofChainColor = useNetworkColor(ensSpoofChain);
 
+  // const { data: profileData, refetch: refetchProfileData } = useScaffoldReadContract({
+  //   contractName: "Profile",
+  //   functionName: "getProfile",
+  //   args: [authenticAddress],
+  // });
+
+  // // console.log(profileData);
+
+  // const formattedNetwork = insertSpaces(params.chain).replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
+
+  // const { data: paymentVerifier, isLoading: isLoadingPaymentVerifier } = useScaffoldContract({
+  //   contractName: "PaymentVerifier",
+  //   chain: paramsChain,
+  // });
+
+  // const { data: isSubscriptionActive } = useScaffoldReadContract({
+  //   contractName: "PaymentVerifier",
+  //   functionName: "getIsSubscriptionActive",
+  //   args: [authenticAddress],
+  //   chain: paramsChain,
+  // });
+
+  // console.log(isSubscriptionActive);
+
+  // const { isProfileSubscriptionActive, isLoadingIsProfileSubscriptionActive, refetch } =
+  //   useComplexIsProfileSubscriptionActive(paramsChain, authenticAddress);
+
+  // console.log(isProfileSubscriptionActive);
+
+  // const { writeContractAsync: writeProfileAsync } = useScaffoldWriteContract("Profile");
+
+  // async function refresh() {
+  //   await refetch();
+  //   await refetchProfileData();
+  // }
+
   return (
     <div className="flex flex-col flex-grow bg-primary">
       {paramsChain ? (
@@ -151,154 +198,6 @@ export default function UserPage({ params }: { params: { chain: string; account:
       )}
     </div>
   );
-
-  // useEffect(() => {
-  //   async function get() {
-  //     if (retrievedChainFromUrl === undefined) return;
-
-  //     if (isAddress(params.user)) {
-  //       setSomeAddress(params.user);
-  //     } else {
-  //       const publicClient = createPublicClient({
-  //         chain: retrievedChainFromUrl?.id === 31337 ? sepolia : retrievedChainFromUrl,
-  //         transport: http(
-  //           getAlchemyHttpUrl(retrievedChainFromUrl?.id === 31337 ? sepolia.id : retrievedChainFromUrl.id),
-  //         ),
-  //       });
-
-  //       const resolvedAddr = await publicClient.getEnsAddress({
-  //         name: normalize(params.user),
-  //       });
-
-  //       setSomeAddress(resolvedAddr);
-  //     }
-  //   }
-  //   get();
-  // }, [retrievedChainFromUrl?.id, params.user]);
-
-  // useEffect(() => {
-  //   async function get() {
-  //     if (retrievedChainFromUrl === undefined) return;
-
-  //     if (!isAddress(params.user)) {
-  //       const publicClient = createPublicClient({
-  //         chain: retrievedChainFromUrl,
-  //         transport: http(getAlchemyHttpUrl(retrievedChainFromUrl?.id)),
-  //       });
-
-  //       const addr = await publicClient.getEnsAddress({
-  //         name: normalize(params.user),
-  //       });
-
-  //       setReturnedAddress(addr as string);
-  //     }
-  //   }
-  //   get();
-  // }, [retrievedChainFromUrl?.id]);
-
-  // const { profileAddress, isLoadingProfileAddress, selectedNetwork } = useProfileAddress(params.user, retrievedChain);
-
-  // console.log(selectedNetwork);
-
-  // const { data: profileData, refetch: refetchProfileData } = useScaffoldReadContract({
-  //   contractName: "Profile",
-  //   functionName: "getProfile",
-  //   args: [profileAddress],
-  // });
-
-  // const [isLoadingEns, setIsLoadingEns] = useState(false);
-  // const [nickname, setNickname] = useState<string | null>();
-  // const [description, setDescription] = useState<string | null>();
-  // const [image, setImage] = useState<string | null>();
-  // const [isUsingProfile, setIsUsingProfile] = useState(false);
-  // const [isUsingEns, setIsUsingEns] = useState(false);
-
-  // useEffect(() => {
-  //   async function get() {
-  //     if (!isValidEns || !profileData || profileData?.[3]) return;
-
-  //     setIsLoadingEns(true);
-
-  //     const publicClient = createPublicClient({
-  //       chain: targetNetwork,
-  //       transport: http(getAlchemyHttpUrl(targetNetwork.id)),
-  //     });
-
-  //     const nickname = await publicClient.getEnsText({ name: normalize(params.user), key: "name" });
-  //     const description = await publicClient.getEnsText({ name: normalize(params.user), key: "description" });
-  //     const image = await publicClient.getEnsAvatar({ name: normalize(params.user) });
-
-  //     console.log(profileData?.[3]);
-  //     setNickname(nickname);
-  //     setDescription(description);
-  //     setImage(image);
-  //     setIsLoadingEns(false);
-  //   }
-  //   get();
-  // }, [isValidEns, profileData, profileData?.[3]]);
-  // const { targetNetwork } = useTargetNetwork();
-
-  // useEffect(() => {
-  //   async function get() {
-  //     if (profileData?.[3] === undefined) return;
-  //     if (profileData?.[4] === undefined) return;
-
-  //     if (profileData?.[3]) {
-  //       setNickname(profileData?.[0]);
-  //       setDescription(profileData?.[1]);
-  //       setImage(profileData?.[2]);
-  //       setIsUsingProfile(profileData?.[3]);
-  //       setIsUsingEns(profileData?.[4]);
-  //     } else {
-  //       setIsLoadingEns(true);
-
-  //       let selectedNetwork = targetNetwork.id === 31337 ? sepolia : targetNetwork;
-
-  //       const publicClient = createPublicClient({
-  //         chain: selectedNetwork,
-  //         transport: http(getAlchemyHttpUrl(selectedNetwork.id)),
-  //       });
-
-  //       const nickname = await publicClient.getEnsText({ name: normalize(params.user), key: "name" });
-  //       // const description = await publicClient.getEnsText({ name: normalize(params.user), key: "description" });
-  //       // const image = await publicClient.getEnsAvatar({ name: normalize(params.user) });
-  //       setNickname(nickname);
-  //       // setDescription(description);
-  //       // setImage(image);
-  //       // setIsUsingEns(profileData?.[4]);
-  //       setIsLoadingEns(false);
-  //     }
-  //   }
-  //   get();
-  // }, [
-  //   params.user,
-  //   profileData,
-  //   targetNetwork,
-  //   targetNetwork?.id,
-  //   profileData?.[0],
-  //   profileData?.[1],
-  //   profileData?.[2],
-  //   profileData?.[3],
-  // ]);
-
-  // const formattedNetwork = insertSpaces(params.network).replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
-
-  // const { retrievedChain, isLoading: isLoadingRetrievedChain } = useGetChainByValue(params.network);
-
-  // const { data: paymentVerifier, isLoading: isLoadingPaymentVerifier } = useScaffoldContract({
-  //   contractName: "PaymentVerifier",
-  //   chain: retrievedChain,
-  // });
-
-  // const { isProfileSubscriptionActive, isLoadingIsProfileSubscriptionActive, refetch } =
-  //   useComplexIsProfileSubscriptionActive(retrievedChain, profileAddress);
-
-  // // const { writeContractAsync: writeProfileAsync } = useScaffoldWriteContract("Profile");
-
-  // async function refresh() {
-  //   await refetch();
-  //   await refetchProfileData();
-  // }
 
   // let justify: "start" | "center" = "start";
   // let output;
