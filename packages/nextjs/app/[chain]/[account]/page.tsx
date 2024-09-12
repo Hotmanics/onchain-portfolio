@@ -7,6 +7,7 @@ import {
   // createPublicClient,
   // http,
   isAddress,
+  zeroAddress,
 } from "viem";
 import { foundry, sepolia } from "viem/chains";
 // import * as chains from "viem/chains";
@@ -14,7 +15,7 @@ import { foundry, sepolia } from "viem/chains";
 import { normalize } from "viem/ens";
 // import { useEffect } from "react";
 import {
-  //useAccount,
+  useAccount, //useAccount,
   useEnsAddress, // useEnsAvatar, // useEnsName,
   // useEnsText, // usePublicClient
 } from "wagmi";
@@ -52,6 +53,10 @@ export default function UserPage({ params }: { params: { chain: string; account:
     chainId: selectedEnsChain?.id,
   });
 
+  const account = useAccount();
+
+  let authenticAddress;
+
   if (resolvedEnsAddress === undefined) {
     console.log("Possibly loading");
 
@@ -62,6 +67,7 @@ export default function UserPage({ params }: { params: { chain: string; account:
 
   if (resolvedEnsAddress === null) {
     if (isAddress(params.account)) {
+      authenticAddress = params.account;
       console.log("Valid netwotk with an address that is not registered with ENS.");
     } else {
       console.log("Valid network with invalid ens name");
@@ -71,11 +77,14 @@ export default function UserPage({ params }: { params: { chain: string; account:
   if (resolvedEnsAddress) {
     if (isFoundry) {
       console.log("Is spoofing ens for foundry with ens name in url.");
+      authenticAddress = account?.address ?? zeroAddress;
     } else {
       console.log("Valid network with a valid ens name in url.");
+      authenticAddress = resolvedEnsAddress;
     }
   }
 
+  console.log(authenticAddress);
   // const { data: ensNickname } = useEnsText({
   //   name: normalize(params.account),
   //   chainId: selectedEnsChain?.id,
