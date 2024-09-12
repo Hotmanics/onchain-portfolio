@@ -122,8 +122,6 @@ export default function UserPage({ params }: { params: { chain: string; account:
     }
   }
 
-  console.log(usableEnsName);
-
   const { data: ensNickname } = useEnsText({
     name: normalize(usableEnsName || ""),
     chainId: selectedEnsChain?.id,
@@ -141,14 +139,6 @@ export default function UserPage({ params }: { params: { chain: string; account:
     chainId: selectedEnsChain?.id,
   });
 
-  console.log(ensNickname);
-  console.log(ensDescription);
-  console.log(ensAvatar);
-
-  console.log(authenticAddress);
-
-  console.log(paramsChain);
-
   const paramsChainColor = useNetworkColor(getChainWithAttributes(paramsChain));
 
   const selectedEnsChainColor = useNetworkColor(
@@ -162,10 +152,6 @@ export default function UserPage({ params }: { params: { chain: string; account:
     chain: paramsChain,
   });
 
-  console.log(profileData);
-
-  // // console.log(profileData);
-
   const { data: paymentVerifier } = useScaffoldContract({
     contractName: "PaymentVerifier",
     chain: paramsChain,
@@ -177,8 +163,6 @@ export default function UserPage({ params }: { params: { chain: string; account:
     args: [authenticAddress],
     chain: paramsChain,
   });
-
-  console.log(isSubscriptionActive);
 
   const formattedNetwork = insertSpaces(params.chain).replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
 
@@ -241,7 +225,7 @@ export default function UserPage({ params }: { params: { chain: string; account:
     const description = profileData?.[3] ? profileData?.[1] : ensDescription;
     const image = profileData?.[3] ? profileData?.[2] : ensAvatar;
     const isUsingProfileData = profileData?.[3];
-    const isUsingEns = profileData?.[3];
+    const isUsingEns = profileData?.[4];
 
     if (!output) {
       // async function setProfileIsNotUsingEns(value: boolean) {
@@ -250,6 +234,9 @@ export default function UserPage({ params }: { params: { chain: string; account:
       //   //   args: [profileData?.[0], profileData?.[1], profileData?.[2], value],
       //   // });
       // }
+
+      console.log(isUsingEns);
+
       output = (
         <Profile
           address={authenticAddress}
