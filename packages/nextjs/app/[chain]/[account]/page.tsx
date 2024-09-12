@@ -16,7 +16,8 @@ import { normalize } from "viem/ens";
 // import { useEffect } from "react";
 import {
   useAccount, //useAccount,
-  useEnsAddress, // useEnsAvatar, // useEnsName,
+  useEnsAddress,
+  useEnsName, // useEnsAvatar, // useEnsName,
   // useEnsText, // usePublicClient
 } from "wagmi";
 // import { getPublicClient } from "wagmi/actions";
@@ -53,23 +54,67 @@ export default function UserPage({ params }: { params: { chain: string; account:
     chainId: selectedEnsChain?.id,
   });
 
+  const { data: resolvedEnsName } = useEnsName({ address: params.account, chainId: selectedEnsChain?.id });
+  console.log(resolvedEnsAddress);
+  console.log(resolvedEnsName);
+
+  let authenticAddress: string;
   const account = useAccount();
 
-  let authenticAddress;
+  if (resolvedEnsAddress && resolvedEnsName === null) {
+    // Valid network with params.account == ens name.
+    //address: resolvedEnsAddress
+    //ensName: params.account
+
+    authenticAddress = isFoundry ? account?.address ?? zeroAddress : resolvedEnsAddress;
+
+    console.log(1);
+  }
+
+  if (resolvedEnsName && resolvedEnsAddress === null) {
+    // Valid network with params.account == address that DOES have a registered ENS name.
+    //address: params.account
+    //ensName: resolvedEnsName
+
+    authenticAddress = params.account;
+
+    console.log(authenticAddress);
+    console.log(2);
+  }
+
+  if (resolvedEnsAddress === null && resolvedEnsName === null) {
+    // Valid Network with params.account == address that DOES NOT have a registered ENS name.
+    //address: params.account
+    //ensName: undefined
+
+    authenticAddress = params.account as `0x${string}`;
+
+    console.log(3);
+  }
+
+  if (resolvedEnsAddress === undefined && resolvedEnsName === undefined) {
+    //Invalid Network.
+    console.log(4);
+  }
+
+  return <></>;
+  if (isAddress(params.account)) {
+    //getEnsName()
+  }
 
   if (resolvedEnsAddress) {
     if (isFoundry) {
       console.log("Is spoofing ens for foundry with ens name in url.");
-      authenticAddress = account?.address ?? zeroAddress;
+      // authenticAddress = account?.address ?? zeroAddress;
     } else {
       console.log("Valid network with a valid ens name in url.");
-      authenticAddress = resolvedEnsAddress;
+      // authenticAddress = resolvedEnsAddress;
     }
   }
   if (resolvedEnsAddress === null) {
     if (isAddress(params.account)) {
-      authenticAddress = params.account;
-      console.log("Valid network with an address that is not registered with ENS.");
+      // authenticAddress = params.account;
+      console.log("Valid network with a valid address"); //that is not registered with ENS.
     } else {
       console.log("Valid network with invalid ens name");
     }
