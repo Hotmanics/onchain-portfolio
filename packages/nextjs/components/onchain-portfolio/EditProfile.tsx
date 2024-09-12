@@ -130,7 +130,7 @@ export const EditProfile = ({
                     functionName: "setProfile2",
                     args: [nameValue, descriptionValue, imageUrlValue, isUsingProfileValue, isUsingEnsValue],
                   });
-                  //   setProfileUpdated(true);
+                  setProfileUpdated(true);
                 }}
               >
                 Save Changes
@@ -143,6 +143,7 @@ export const EditProfile = ({
           <button
             className="btn btn-primary"
             onClick={async () => {
+              setProfileUpdated(false);
               if (onExitEditMode) onExitEditMode();
             }}
           >

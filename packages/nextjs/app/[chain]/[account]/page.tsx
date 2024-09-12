@@ -2,28 +2,10 @@
 
 import "react";
 import { useState } from "react";
-// import { useEffect } from "react";
-// import { useTheme } from "next-themes";
-import {
-  isAddress, // PublicClient, //Chain,
-  // createPublicClient,
-  // http,
-  // isAddress,
-  zeroAddress,
-} from "viem";
+import { isAddress, zeroAddress } from "viem";
 import { foundry, sepolia } from "viem/chains";
-// import * as chains from "viem/chains";
-// import { Chain } from "viem/chains";
 import { normalize } from "viem/ens";
-// import { useEffect } from "react";
-import {
-  useAccount, //useAccount,
-  useEnsAddress,
-  useEnsAvatar,
-  useEnsName,
-  useEnsText, // useEnsAvatar, // useEnsName,
-  // useEnsText, // usePublicClient
-} from "wagmi";
+import { useAccount, useEnsAddress, useEnsAvatar, useEnsName, useEnsText } from "wagmi";
 import { EditProfile } from "~~/components/onchain-portfolio/EditProfile";
 import { GrowCard } from "~~/components/onchain-portfolio/GrowCard";
 import { InactiveSubscriptionCard } from "~~/components/onchain-portfolio/InactiveSubscriptionCard";
@@ -32,54 +14,30 @@ import { NoticeCard } from "~~/components/onchain-portfolio/NoticeCard";
 import { Profile } from "~~/components/onchain-portfolio/Profile";
 import { UnknownNetworkCard } from "~~/components/onchain-portfolio/UnknownNetworkCard";
 import { Address } from "~~/components/scaffold-eth";
-// import { useComplexIsProfileSubscriptionActive } from "~~/hooks/onchain-portfolio/useComplexIsProfileSubscriptionActive";
-// import { getPublicClient } from "wagmi/actions";
-// import { GrowCard } from "~~/components/onchain-portfolio/GrowCard";
-// import { InactiveSubscriptionCard } from "~~/components/onchain-portfolio/InactiveSubscriptionCard";
-// import { NotSupportedNetworkCard } from "~~/components/onchain-portfolio/NotSupportedNetworkCard";
-// import { NoticeCard } from "~~/components/onchain-portfolio/NoticeCard";
-// import { Profile } from "~~/components/onchain-portfolio/Profile";
-// import { UnknownNetworkCard } from "~~/components/onchain-portfolio/UnknownNetworkCard";
-// import { Address } from "~~/components/scaffold-eth";
-// import { dummyUser } from "~~/components/onchain-portfolio/test-data/dummyUser";
-// import { useComplexIsProfileSubscriptionActive } from "~~/hooks/onchain-portfolio/useComplexIsProfileSubscriptionActive";
-// import { useProfileAddress } from "~~/hooks/onchain-portfolio/useProfileAddress";
 import "~~/hooks/scaffold-eth";
-import {
-  useNetworkColor,
-  useScaffoldContract,
-  useScaffoldReadContract, // useScaffoldWriteContract, // useScaffoldContract,
-  // useScaffoldReadContract, // useScaffoldWriteContract,
-} from "~~/hooks/scaffold-eth";
-// import { enabledChains } from "~~/services/web3/wagmiConfig";
+import { useNetworkColor, useScaffoldContract, useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { getChainWithAttributes } from "~~/utils/onchain-portfolio/scaffoldEth";
 import insertSpaces from "~~/utils/onchain-portfolio/textManipulation";
-// import insertSpaces from "~~/utils/onchain-portfolio/textManipulation";
 import { getChainByName } from "~~/utils/onchain-portfolio/viemHelpers";
 
-// import { wagmiConfig } from "~~/services/web3/wagmiConfig";
-// import insertSpaces from "~~/utils/onchain-portfolio/textManipulation";
-
-// const ensSpoofChain = { ...sepolia, ...NETWORKS_EXTRA_DATA[sepolia.id] };
-
 const isDebugging = false;
-
 const ensSpoofChain = getChainWithAttributes(sepolia);
 
 export default function UserPage({ params }: { params: { chain: string; account: string } }) {
-  // const spoofedNetworkColor = useNetworkColor(spoofChain);
-
   const paramsChain = getChainByName(params.chain);
 
   const isFoundry = paramsChain?.id === foundry.id;
 
   const selectedEnsChain = isFoundry && !isAddress(params.account) ? ensSpoofChain : paramsChain;
-  const { data: resolvedEnsAddress } = useEnsAddress({
+  const { data: resolvedEnsAddress, isLoading: isLoadingEnsAddress } = useEnsAddress({
     name: normalize(params.account),
     chainId: selectedEnsChain?.id,
   });
 
-  const { data: resolvedEnsName } = useEnsName({ address: params.account, chainId: selectedEnsChain?.id });
+  const { data: resolvedEnsName, isLoading: isLoadingEnsName } = useEnsName({
+    address: params.account,
+    chainId: selectedEnsChain?.id,
+  });
 
   let usableEnsName = resolvedEnsName;
   let authenticAddress = "";
@@ -127,19 +85,19 @@ export default function UserPage({ params }: { params: { chain: string; account:
     }
   }
 
-  const { data: ensNickname } = useEnsText({
+  const { data: ensNickname, isLoading: isLoadingEnsNickname } = useEnsText({
     name: normalize(usableEnsName || ""),
     chainId: selectedEnsChain?.id,
     key: "name",
   });
 
-  const { data: ensDescription } = useEnsText({
+  const { data: ensDescription, isLoading: isLoadingEnsDescription } = useEnsText({
     name: normalize(usableEnsName || ""),
     chainId: selectedEnsChain?.id,
     key: "description",
   });
 
-  const { data: ensAvatar } = useEnsAvatar({
+  const { data: ensAvatar, isLoading: isLoadingEnsAvatar } = useEnsAvatar({
     name: normalize(usableEnsName || ""),
     chainId: selectedEnsChain?.id,
   });
@@ -150,19 +108,27 @@ export default function UserPage({ params }: { params: { chain: string; account:
     selectedEnsChain ? getChainWithAttributes(selectedEnsChain) : undefined,
   );
 
-  const { data: profileData, refetch: getProfileData } = useScaffoldReadContract({
+  const {
+    data: profileData,
+    isLoading: isLoadingProfile,
+    refetch: getProfileData,
+  } = useScaffoldReadContract({
     contractName: "Profile",
     functionName: "getProfile",
     args: [authenticAddress],
     chain: paramsChain,
   });
 
-  const { data: paymentVerifier } = useScaffoldContract({
+  const { data: paymentVerifier, isLoading: isLoadingPaymentVerifier } = useScaffoldContract({
     contractName: "PaymentVerifier",
     chain: paramsChain,
   });
 
-  const { data: isSubscriptionActive, refetch: refetchIsSubscriptionActive } = useScaffoldReadContract({
+  const {
+    data: isSubscriptionActive,
+    isLoading: isLoadingIsSubscriptionActive,
+    refetch: refetchIsSubscriptionActive,
+  } = useScaffoldReadContract({
     contractName: "PaymentVerifier",
     functionName: "getIsSubscriptionActive",
     args: [authenticAddress],
@@ -179,7 +145,15 @@ export default function UserPage({ params }: { params: { chain: string; account:
   let justify: "start" | "center" = "start";
   let output;
 
-  const isLoading = false;
+  const isLoading =
+    isLoadingEnsAddress ||
+    isLoadingEnsName ||
+    isLoadingEnsDescription ||
+    isLoadingEnsAvatar ||
+    isLoadingEnsNickname ||
+    isLoadingIsSubscriptionActive ||
+    isLoadingPaymentVerifier ||
+    isLoadingProfile;
 
   // isLoadingPaymentVerifier ||
   // isLoadingRetrievedChain ||
