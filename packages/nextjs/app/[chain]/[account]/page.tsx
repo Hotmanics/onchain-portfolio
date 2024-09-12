@@ -101,14 +101,15 @@ export default function UserPage({ params }: { params: { chain: string; account:
   }
 
   if (resolvedEnsAddress === undefined && resolvedEnsName === undefined) {
-    //Invalid Network or Unsupported network.
+    console.log(4);
 
     if (paramsChain === undefined) {
       //Invalid Network
+      console.log(5);
     } else {
       //Unsupported Network
+      console.log(6);
     }
-    console.log(4);
   }
 
   console.log(usableEnsName);
