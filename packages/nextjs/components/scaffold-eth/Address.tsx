@@ -51,8 +51,6 @@ export const Address = ({
   const [addressCopied, setAddressCopied] = useState(false);
   const checkSumAddress = address ? getAddress(address) : undefined;
 
-  console.log(selectedNetwork);
-
   const { data: fetchedEns } = useEnsName({
     address: checkSumAddress,
     chainId: selectedNetwork.id,

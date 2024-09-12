@@ -1,188 +1,193 @@
 "use client";
 
-import {
-  useEffect, // useMemo,
-  useState,
-} from "react";
+import "react";
 // import { useTheme } from "next-themes";
 import {
-  PublicClient, //Chain,
-  createPublicClient,
-  http,
+  // PublicClient, //Chain,
+  // createPublicClient,
+  // http,
   isAddress,
 } from "viem";
 import { foundry, sepolia } from "viem/chains";
+// import * as chains from "viem/chains";
+// import { Chain } from "viem/chains";
 import { normalize } from "viem/ens";
 // import { useEffect } from "react";
-import { useAccount } from "wagmi";
+import {
+  //useAccount,
+  useEnsAddress, // useEnsAvatar, // useEnsName,
+  // useEnsText, // usePublicClient
+} from "wagmi";
+// import { getPublicClient } from "wagmi/actions";
 // import { GrowCard } from "~~/components/onchain-portfolio/GrowCard";
 // import { InactiveSubscriptionCard } from "~~/components/onchain-portfolio/InactiveSubscriptionCard";
 // import { NotSupportedNetworkCard } from "~~/components/onchain-portfolio/NotSupportedNetworkCard";
 // import { NoticeCard } from "~~/components/onchain-portfolio/NoticeCard";
 // import { Profile } from "~~/components/onchain-portfolio/Profile";
 // import { UnknownNetworkCard } from "~~/components/onchain-portfolio/UnknownNetworkCard";
-import { Address } from "~~/components/scaffold-eth";
-import { useChainWithAttributes } from "~~/hooks/onchain-portfolio/useChainWithAttributes";
+// import { Address } from "~~/components/scaffold-eth";
 // import { dummyUser } from "~~/components/onchain-portfolio/test-data/dummyUser";
 // import { useComplexIsProfileSubscriptionActive } from "~~/hooks/onchain-portfolio/useComplexIsProfileSubscriptionActive";
-import { useGetChainByName } from "~~/hooks/onchain-portfolio/useGetChainByValue";
 // import { useProfileAddress } from "~~/hooks/onchain-portfolio/useProfileAddress";
-import {
-  useNetworkColor, // useScaffoldContract,
-  // useScaffoldReadContract, // useScaffoldWriteContract,
-  // useTargetNetwork,
-} from "~~/hooks/scaffold-eth";
+import "~~/hooks/scaffold-eth";
+import { getChainWithAttributes } from "~~/utils/onchain-portfolio/scaffoldEth";
+import { getChainByName } from "~~/utils/onchain-portfolio/viemHelpers";
+
 // import { wagmiConfig } from "~~/services/web3/wagmiConfig";
 // import insertSpaces from "~~/utils/onchain-portfolio/textManipulation";
-import { NETWORKS_EXTRA_DATA, getAlchemyHttpUrl } from "~~/utils/scaffold-eth";
 
-const spoofChain = { ...sepolia, ...NETWORKS_EXTRA_DATA[sepolia.id] };
+// const ensSpoofChain = { ...sepolia, ...NETWORKS_EXTRA_DATA[sepolia.id] };
+const ensSpoofChain = getChainWithAttributes(sepolia);
 
-export default function UserPage({ params }: { params: { chain: string; observedAccount: string } }) {
-  const spoofedNetworkColor = useNetworkColor(spoofChain);
+export default function UserPage({ params }: { params: { chain: string; account: string } }) {
+  // const spoofedNetworkColor = useNetworkColor(spoofChain);
 
-  //   const { data: paymentCadence } = useScaffoldReadContract({
-  //     contractName: "PaymentVerifier",
-  //     functionName: "getPaymentCadence",
-  //   });
+  const paramsChain = getChainByName(params.chain);
 
-  // const { data: lastPaymentDate } = useScaffoldReadContract({
-  //   contractName: "PaymentVerifier",
-  //   functionName: "getLastPaymentDate",
-  //   args: [profileAddress],
+  const isFoundry = paramsChain?.id === foundry.id;
+
+  const selectedEnsChain = isFoundry ? ensSpoofChain : paramsChain;
+  const { data: resolvedEnsAddress } = useEnsAddress({
+    name: normalize(params.account),
+    chainId: selectedEnsChain?.id,
+  });
+
+  if (resolvedEnsAddress === undefined) {
+    console.log("Possibly loading");
+
+    if (paramsChain === undefined) {
+      console.log("Not a real network");
+    }
+  }
+
+  if (resolvedEnsAddress === null) {
+    if (isAddress(params.account)) {
+      console.log("Valid netwotk with an address that is not registered with ENS.");
+    } else {
+      console.log("Valid network with invalid ens name");
+    }
+  }
+
+  if (resolvedEnsAddress) {
+    if (isFoundry) {
+      console.log("Is spoofing ens for foundry with ens name in url.");
+    } else {
+      console.log("Valid network with a valid ens name in url.");
+    }
+  }
+
+  // const { data: ensNickname } = useEnsText({
+  //   name: normalize(params.account),
+  //   chainId: selectedEnsChain?.id,
+  //   key: "name",
   // });
 
-  // const hasBoughtBefore = lastPaymentDate === BigInt(0) ? false : true;
+  // const { data: ensDescription } = useEnsText({
+  //   name: normalize(params.account),
+  //   chainId: selectedEnsChain?.id,
+  //   key: "description",
+  // });
+
+  // const { data: ensAvatar } = useEnsAvatar({
+  //   name: normalize(params.account),
+  //   chainId: selectedEnsChain?.id,
+  // });
+
+  // console.log(ensNickname);
+  // console.log(ensDescription);
+  // console.log(ensAvatar);
+
+  // const [ensAddress, setEnsAddress] = useState<string>();
+  // // console.log(ensAddress);
 
   // useEffect(() => {
-  //   const result = loadBurnerSK();
-  //   console.log(result);
-  // }, []);
-  // const account = useAccount();
+  //   async function get() {
+  //     if (ensPublicClient === undefined) return;
 
-  const { chain: paramsChain } = useGetChainByName(params.chain);
-  const { chain: paramsChainWithAttributes } = useChainWithAttributes(paramsChain);
+  //     if (isAddress(params.observedAccount)) {
+  //       setEnsAddress(params.observedAccount);
+  //     } else {
+  //       const resolvedAddr = await ensPublicClient.getEnsAddress({
+  //         name: normalize(params.observedAccount),
+  //       });
 
-  const account = useAccount();
+  //       //if site user wallet is not connected
+  //       if (account?.address === undefined) {
+  //         if (resolvedAddr !== null) setEnsAddress(resolvedAddr);
+  //       }
+  //     }
+  //   }
+  //   get();
+  // }, [ensPublicClient?.chain?.id, params.observedAccount]);
 
-  const [authenticAddress, setAuthenticAddress] = useState<string>();
+  // const [authenticAddress, setAuthenticAddress] = useState<string>();
 
-  const [ensPublicClient, setEnsPublicClient] = useState<PublicClient>();
+  // useEffect(() => {
+  //   async function get() {
+  //     //if page observed account IS an address
+  //     if (isAddress(params.observedAccount)) {
+  //       //then set finalized observed account
+  //       setAuthenticAddress(params.observedAccount);
+  //     }
+  //     //else page observed account IS NOT an address
+  //     else {
+  //       //if page chain IS foundry
+  //       if (paramsChainWithAttributes?.id === foundry.id) {
+  //         //THEN spoof sepolia ens profile
+  //         const publicClient = createPublicClient({
+  //           chain: spoofChain,
+  //           transport: http(getAlchemyHttpUrl(spoofChain.id)),
+  //         });
 
-  useEffect(() => {
-    async function get() {
-      //If params chain IS Foundry THEN create a sepolia client
-      //Else if params chain IS NOT Foundry THEN create a params chain client
-      setEnsPublicClient(
-        createPublicClient({
-          chain: paramsChainWithAttributes?.id === foundry.id ? spoofChain : paramsChainWithAttributes,
-          transport: http(
-            getAlchemyHttpUrl(
-              paramsChainWithAttributes?.id === foundry.id ? spoofChain.id : paramsChainWithAttributes?.id,
-            ),
-          ),
-        }),
-      );
-    }
-    get();
-  }, [paramsChainWithAttributes?.id, spoofChain?.id]);
+  //         const resolvedAddr = await publicClient.getEnsAddress({
+  //           name: normalize(params.observedAccount),
+  //         });
 
-  const [ensAddress, setEnsAddress] = useState<string>();
-  console.log(ensAddress);
+  //         //if site user wallet is not connected
+  //         if (account?.address === undefined) {
+  //           if (resolvedAddr !== null) setAuthenticAddress(resolvedAddr);
+  //         }
+  //       }
+  //     }
+  //   }
+  //   get();
+  // }, [account?.address, paramsChainWithAttributes?.id]);
 
-  useEffect(() => {
-    async function get() {
-      if (ensPublicClient === undefined) return;
+  // useEffect(() => {
+  //   async function get() {
+  //     if (paramsChainWithAttributes?.id === foundry.id) {
+  //       const publicClient = createPublicClient({
+  //         chain: spoofChain,
+  //         transport: http(getAlchemyHttpUrl(spoofChain.id)),
+  //       });
 
-      if (isAddress(params.observedAccount)) {
-        setEnsAddress(params.observedAccount);
-      } else {
-        const resolvedAddr = await ensPublicClient.getEnsAddress({
-          name: normalize(params.observedAccount),
-        });
+  //       const nickname = await publicClient.getEnsText({ name: normalize(params.observedAccount), key: "name" });
+  //       const description = await publicClient.getEnsText({
+  //         name: normalize(params.observedAccount),
+  //         key: "description",
+  //       });
+  //       const image = await publicClient.getEnsAvatar({ name: normalize(params.observedAccount) });
+  //     }
+  //   }
+  //   get();
+  // }, [params.observedAccount, paramsChainWithAttributes?.id]);
 
-        //if site user wallet is not connected
-        if (account?.address === undefined) {
-          if (resolvedAddr !== null) setEnsAddress(resolvedAddr);
-        }
-      }
-    }
-    get();
-  }, [ensPublicClient?.chain?.id, params.observedAccount]);
+  return <></>;
+  // const networkColor = useNetworkColor(paramsChainWithAttributes);
 
-  useEffect(() => {
-    async function get() {
-      //if page observed account IS an address
-      if (isAddress(params.observedAccount)) {
-        //then set finalized observed account
-        setAuthenticAddress(params.observedAccount);
-      }
-      //else page observed account IS NOT an address
-      else {
-        //if page chain IS foundry
-        if (paramsChainWithAttributes?.id === foundry.id) {
-          //THEN spoof sepolia ens profile
-          const publicClient = createPublicClient({
-            chain: spoofChain,
-            transport: http(getAlchemyHttpUrl(spoofChain.id)),
-          });
-
-          const resolvedAddr = await publicClient.getEnsAddress({
-            name: normalize(params.observedAccount),
-          });
-
-          console.log(resolvedAddr);
-
-          //if site user wallet is not connected
-          if (account?.address === undefined) {
-            if (resolvedAddr !== null) setAuthenticAddress(resolvedAddr);
-          }
-        }
-      }
-    }
-    get();
-  }, [account?.address, paramsChainWithAttributes?.id]);
-
-  useEffect(() => {
-    async function get() {
-      if (paramsChainWithAttributes?.id === foundry.id) {
-        const publicClient = createPublicClient({
-          chain: spoofChain,
-          transport: http(getAlchemyHttpUrl(spoofChain.id)),
-        });
-
-        const nickname = await publicClient.getEnsText({ name: normalize(params.observedAccount), key: "name" });
-        const description = await publicClient.getEnsText({
-          name: normalize(params.observedAccount),
-          key: "description",
-        });
-        const image = await publicClient.getEnsAvatar({ name: normalize(params.observedAccount) });
-
-        console.log(nickname);
-        console.log(description);
-        console.log(image);
-      }
-    }
-    get();
-  }, [params.observedAccount, paramsChainWithAttributes?.id]);
-
-  const networkColor = useNetworkColor(paramsChainWithAttributes);
-
-  console.log(authenticAddress);
-
-  return (
-    <div className="flex flex-col flex-grow bg-primary">
-      <p>
-        This page is loading data from the{" "}
-        <span style={{ color: networkColor }}>{paramsChainWithAttributes?.name}</span> network.
-      </p>
-      <p>
-        This page is spoofing some data from the <span style={{ color: spoofedNetworkColor }}>{spoofChain.name}</span>{" "}
-        network.
-      </p>
-      <Address address={authenticAddress} chain={spoofChain} />
-    </div>
-  );
+  // return (
+  //   <div className="flex flex-col flex-grow bg-primary">
+  //     <p>
+  //       This page is loading data from the{" "}
+  //       <span style={{ color: networkColor }}>{paramsChainWithAttributes?.name}</span> network.
+  //     </p>
+  //     <p>
+  //       This page is spoofing some data from the <span style={{ color: spoofedNetworkColor }}>{spoofChain.name}</span>{" "}
+  //       network.
+  //     </p>
+  //     <Address address={authenticAddress} chain={spoofChain} />
+  //   </div>
+  // );
 
   // useEffect(() => {
   //   async function get() {

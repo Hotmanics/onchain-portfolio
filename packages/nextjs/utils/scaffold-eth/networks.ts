@@ -1,7 +1,7 @@
 import * as chains from "viem/chains";
 import scaffoldConfig from "~~/scaffold.config";
 
-type ChainAttributes = {
+export type ChainAttributes = {
   // color | [lightThemeColor, darkThemeColor]
   color: string | [string, string];
   // Used to fetch price by providing mainnet token address
